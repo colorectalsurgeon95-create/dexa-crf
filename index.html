@@ -209,7 +209,6 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
     <div class="id-box"><label>작성일</label><input type="date" id="meas_date"></div>
     <button class="btn btn-secondary" onclick="newRecord()">+ 새 환자</button>
   </div>
-  <div class="notice">⚠ 등록번호는 데이터 매칭 확인용으로만 사용되며, 엑셀 내보내기 시 <strong>별도 시트(ID Mapping)</strong>에만 보관됩니다.</div>
 
   <div class="tab-nav">
     <button class="tab-btn active" onclick="switchTab(0)">📋 입력</button>
@@ -723,6 +722,7 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
         </div>
         <button class="btn btn-green" onclick="exportExcel('all')">전체 엑셀</button>
         <button class="btn" onclick="exportExcel('dexa')" style="background:var(--green-bg);color:var(--green);border:0.5px solid var(--green);font-size:13px;">DEXA만 엑셀</button>
+        <button class="btn" onclick="exportSubjectList()" style="background:var(--blue-bg);color:var(--blue);border:0.5px solid var(--blue);font-size:13px;">📋 대상자 목록</button>
         <button class="btn btn-secondary" onclick="exportCodebook()" style="font-size:12px;border-color:var(--purple);color:var(--purple);">📖 코드북</button>
         <button class="btn btn-secondary" onclick="clearAllRecords()" style="font-size:12px;color:#e24b4a;">전체 삭제</button>
       </div>
@@ -891,9 +891,11 @@ window.doSignOut = async function(){
 onAuthStateChanged(auth, user=>{
   if(user && user.email === ALLOWED_EMAIL){
     showMainApp(user.email);
-    window._firebaseReady=true;
-    window.dispatchEvent(new Event('firebaseReady'));
-    window.loadFromFirebase();
+    // loadFromFirebase 완료 후 firebaseReady 발생 (순서 보장)
+    window.loadFromFirebase().then(function(){
+      window._firebaseReady=true;
+      window.dispatchEvent(new Event('firebaseReady'));
+    });
   } else {
     showLoginScreen();
   }
@@ -902,13 +904,15 @@ onAuthStateChanged(auth, user=>{
 window.loadFromFirebase=async function(){
   try{
     const snap=await getDocs(query(collection(db,COL),orderBy('study_id')));
-    window._records=[];
-    snap.forEach(d=>window._records.push({_fireId:d.id,...d.data()}));
+    var tmp=[];
+    snap.forEach(d=>tmp.push({_fireId:d.id,...d.data()}));
+    window._records=tmp; // 성공 시에만 교체 (중간에 빈 배열 되는 것 방지)
     if(typeof renderList==='function')renderList();
     if(typeof updateStatus==='function')updateStatus('✅ DB 연결됨 — '+window._records.length+'명 로드');
   }catch(e){
     console.error('Firebase load error:',e);
     if(typeof updateStatus==='function')updateStatus('⚠️ DB 오류: '+e.message);
+    // 오류 시 기존 records 유지 (초기화하지 않음)
   }
 };
 
@@ -934,7 +938,7 @@ window.deleteFromFirebase=async function(fid){
 
 <!-- 로그인 화면 -->
 <script>
-let records=[],currentStudyId=generateId(),currentDexaDone=null,currentListFilter='all',selectedIds=new Set();
+let records=[],currentStudyId=generateId(),currentDexaDone=null,currentListFilter='all',selectedIds=new Set(),currentIsNew=true;
 const OPJ_FIELDS=['opj_date','opj_cc','opj_pain','opj_pi_text','opj_raw_text','pi_tx_other','opj_probiotics','opj_htn','opj_htn_yr','opj_hl','opj_hl_yr','opj_ui','opj_ui_yr','opj_menopause','opj_menopause_yr','opj_cardiac','opj_cardiac_yr','opj_hematologic','opj_hematologic_yr','opj_cancer','opj_cancer_yr','opj_cancer_memo','opj_fi_gas','opj_fi_mucus','opj_fi_liquid','opj_fi_solid','opj_fisi','opj_wx_solid','opj_wx_liquid','opj_wx_gas','opj_wx_pad','opj_wx_life','opj_wexner','opj_cvs_yn','opj_cvs_result','opj_cvs_detail','opj_cvs_yr','opj_onset_yr','opj_onset_detail','opj_episode','opj_constipation','opj_diarrhea','opj_diarrhea_freq','opj_loose','opj_defecation','opj_bss','opj_bss_range','opj_cvs_findings','opj_smoking_detail','opj_surgery_json','opj_spinal','opj_spinal_detail','opj_spinal_yr','opj_dementia','opj_bmi_raw','opj_smoking','opj_smoking_yr','opj_smoking_ppd','opj_smoking_py','opj_prev_ar_yn','opj_prev_ar_type','opj_prev_ar_yr','opj_prev_ar_detail','opj_hyst','opj_hyst_type','opj_hyst_yr','opj_para_na','opj_para_total','opj_para_vd','opj_para_cs','opj_para_forceps','opj_para_max_wt','opj_dm','opj_dm_memo','opj_skin_irr','opj_patulus','opj_perineal','opj_stool_stain','opj_feces','opj_resting_tone','opj_squeeze','opj_muschel','opj_assessment','opj_plan','opj_memo'];
 var MANO_FIELDS=['mano_date','sphincter_tone','rest_mean','rest_vec','sq_max','sq_vec','sus_dur','sph_len','hpz','rs_min','rs_urg','cv_max','rair','rair_result','cough_pct','cough_ref','bet','bet_min','bd_rectal_pr','bd_anal_pr','bd_rectal_result','bd_anal_result','mano_timing','mano_seq','imp_text'];
 var OPJ_CHECKS=['pi_sit_passive','pi_sit_postdefec','pi_sit_strain','pi_sit_nocturnal','pi_sit_urge','pi_sx_gas','pi_sx_mucus','pi_sx_liquid','pi_sx_solid','pi_lk_leak','pi_lk_soiling','pi_pad','pi_ag_dairy','pi_ag_fruit','pi_ag_food','pi_ag_other','pi_ag_diarrhea','pi_ag_loose','pi_ag_cough','pi_ag_stress','pi_ag_postdefec','pi_ag_exercise','pi_crs_worsening','pi_crs_intermittent','pi_crs_recent_worse','pi_tx_none','pi_tx_drug','pi_tx_bio','pi_tx_pfe','pi_tx_op','pi_tx_electric'];
@@ -975,14 +979,15 @@ function generateId(){
   return 'DM-'+String(n).padStart(4,'0')+'-'+yr;
 }
 function init(){
-  // Firebase 로드 후 study_id 갱신
-  setTimeout(function(){
-    currentStudyId=generateId();
-    var sid=document.getElementById('study_id');
-    if(sid)sid.value=currentStudyId;
-  },1500);
-  document.getElementById('study_id').value=currentStudyId;
   document.getElementById('meas_date').value=new Date().toISOString().slice(0,10);
+  // Firebase 로드 완료 후 study_id 생성 (records 있는 상태에서)
+  window.addEventListener('firebaseReady', function(){
+    if(currentIsNew){
+      currentStudyId=generateId();
+      var sid=document.getElementById('study_id');
+      if(sid)sid.value=currentStudyId;
+    }
+  },{once:true});
 }
 function checkDupRegNo(val){
   var warn=document.getElementById('reg-no-warn');
@@ -1306,7 +1311,7 @@ function getRowData(containerId){
 }
 function calcASMM(){var aL=parseFloat(document.getElementById('arms_lean_g').value)||0,lL=parseFloat(document.getElementById('legs_lean_g').value)||0,h=parseFloat(document.getElementById('height').value)||0,sx=document.getElementById('sex').value,ae=document.getElementById('asmm'),ai=document.getElementById('asmi'),sd=document.getElementById('sarco_dx');if(aL>0&&lL>0){var asmm=(aL+lL)/1000;ae.value=asmm.toFixed(2);ae.closest('.field').classList.add('filled');if(h>0){var hm=h/100,asmi=asmm/(hm*hm);ai.value=asmi.toFixed(2);ai.closest('.field').classList.add('filled');if(sd){sd.value=asmi<(sx==='Male'?7.0:5.4)?'근감소증':'없음';sd.closest('.field').classList.add('filled');}}}else{ae.value='';ai.value='';ae.closest('.field').classList.remove('filled');ai.closest('.field').classList.remove('filled');}}
 function fillNAEmpty(){
-  var skipIds=new Set(['reg_no','json-paste','study_id','completion-pct','asmm','asmi','sarco_dx','opj_bmi_raw','bmi','bmi_dxa']);
+  var skipIds=new Set(['reg_no','json-paste','study_id','completion-pct','asmm','asmi','sarco_dx','opj_bmi_raw','bmi','bmi_dxa','opj_fisi','opj_wexner']);
   var filled=0;
   var formEl=document.getElementById('main-form');
   if(!formEl)return;
@@ -1323,18 +1328,14 @@ function fillNAEmpty(){
 function updateCompletion(){
   // 핵심 필수 필드만으로 완성도 계산
   var CORE_OPJ=['opj_date','opj_cc','opj_fisi','opj_wexner','opj_onset_yr','opj_episode','opj_constipation','opj_diarrhea','opj_loose','opj_defecation','opj_smoking','opj_para_na','opj_dm','opj_resting_tone','opj_squeeze','opj_muschel','opj_assessment','opj_plan'];
-  // 분만력 없음(미혼=1, 기혼무산=2)이면 VD/CS/총분만 제외
   var paraNA=document.getElementById('opj_para_na');
   var paraVal=paraNA?paraNA.value:'';
   var CORE_OPJ2=CORE_OPJ.slice();
-  if(paraVal===''||paraVal==='0'){
-    // 분만력 있음 - 총분만/VD/CS 포함
-    CORE_OPJ2.push('opj_para_total');
-  }
-  // CVS 했으면 결과 포함
+  if(paraVal===''||paraVal==='0') CORE_OPJ2.push('opj_para_total');
   var cvsYN=document.getElementById('opj_cvs_yn');
   if(cvsYN&&cvsYN.value==='1') CORE_OPJ2.push('opj_cvs_result');
 
+  // 마노메트리 항상 필수
   var CORE_MANO=['mano_date','rest_mean','sq_max','rair','rair_result'];
   var CORE_DEXA=['meas_date','bmd_total','ya_tscore','total_fat_pct','total_lean_g'];
 
@@ -1344,10 +1345,9 @@ function updateCompletion(){
   if(currentDexaDone===true){
     var n2=CORE_DEXA.filter(id=>{var e=document.getElementById(id);return e&&e.value!=='';}).length;
     pct=Math.round((n1+nm+n2)/(CORE_OPJ2.length+CORE_MANO.length+CORE_DEXA.length)*100);
-  }else if(currentDexaDone===false){
-    pct=Math.round((n1+nm)/(CORE_OPJ2.length+CORE_MANO.length)*100);
   }else{
-    pct=Math.round(n1/CORE_OPJ2.length*100);
+    // DEXA 미시행 또는 미선택 모두 마노메트리는 항상 포함
+    pct=Math.round((n1+nm)/(CORE_OPJ2.length+CORE_MANO.length)*100);
   }
   pct=Math.min(pct,100);
   document.getElementById('completion-pct').textContent=pct+'%';
@@ -1388,19 +1388,29 @@ function switchMain(view){
   }
 }
 function newRecord(){
-  clearForm();
-  var doGenerate=function(){
-    currentStudyId=generateId();
-    document.getElementById('study_id').value=currentStudyId;
-    switchMain('form');
-  };
-  if(typeof window.loadFromFirebase==='function'){
-    window.loadFromFirebase().then(doGenerate);
-  }else{
-    doGenerate();
-  }
+  try{ clearForm(); }catch(e){ console.error('clearForm error:',e); }
+  currentIsNew=true;
+  currentStudyId=generateId();
+  var sid=document.getElementById('study_id');
+  if(sid)sid.value=currentStudyId;
+  switchMain('form');
 }
-function clearForm(){ALL_FIELDS.forEach(id=>{var e=document.getElementById(id);if(e){e.value='';var p=e.closest('.field');if(p)p.classList.remove('filled');}});OPJ_FIELDS.forEach(id=>{var e=document.getElementById(id);if(e){e.value='';var p=e.closest('.field');if(p)p.classList.remove('filled-opj');}});[...CHECKBOX_FIELDS,...(window.OPJ_CHECKS_DYNAMIC||[])].forEach(id=>{var e=document.getElementById(id);if(e)e.checked=false;});document.getElementById('reg_no').value='';document.getElementById('json-paste').value='';document.getElementById('opj-parsed-card').style.display='none';var oc=document.getElementById('opj-check-content');if(oc)oc.textContent='— 내용을 입력하면 여기에 원문 형식으로 표시됩니다 —';currentDexaDone=null;setDexaDone(null);var stb=document.getElementById('surgery-tbody');if(stb)stb.innerHTML='';var shid=document.getElementById('opj_surgery_json');if(shid)shid.value='';var sdw=document.getElementById('smoking-detail-wrap');if(sdw)sdw.style.display='none';updateCompletion();}
+function clearForm(){
+  currentIsNew=true;
+  ALL_FIELDS.forEach(id=>{var e=document.getElementById(id);if(e){e.value='';var p=e.closest('.field');if(p)p.classList.remove('filled');}});
+  OPJ_FIELDS.forEach(id=>{var e=document.getElementById(id);if(e){e.value='';var p=e.closest('.field');if(p)p.classList.remove('filled-opj');}});
+  [...CHECKBOX_FIELDS,...(window.OPJ_CHECKS_DYNAMIC||[])].forEach(id=>{var e=document.getElementById(id);if(e)e.checked=false;});
+  var rn=document.getElementById('reg_no');if(rn)rn.value='';
+  var jp=document.getElementById('json-paste');if(jp)jp.value='';
+  var opc=document.getElementById('opj-parsed-card');if(opc)opc.style.display='none';
+  var oc=document.getElementById('opj-check-content');if(oc)oc.textContent='— 내용을 입력하면 여기에 원문 형식으로 표시됩니다 —';
+  currentDexaDone=null;
+  try{setDexaDone(null);}catch(e){}
+  var stb=document.getElementById('surgery-tbody');if(stb)stb.innerHTML='';
+  var shid=document.getElementById('opj_surgery_json');if(shid)shid.value='';
+  var sdw=document.getElementById('smoking-detail-wrap');if(sdw)sdw.style.display='none';
+  try{updateCompletion();}catch(e){}
+}
 function getFormData(){
   var d={study_id:currentStudyId,reg_no:document.getElementById('reg_no').value,meas_date:document.getElementById('meas_date').value,dexa_done:currentDexaDone===true?1:currentDexaDone===false?0:''};
   ALL_FIELDS.forEach(id=>{var e=document.getElementById(id);if(e)d[id]=e.value;});
@@ -1427,6 +1437,7 @@ function getFormData(){
 function loadRecord(idx){
   var r=records[idx];
   if(!r)return;
+  currentIsNew=false;
   currentStudyId=r.study_id;
   currentDexaDone=r.dexa_done===1?true:r.dexa_done===0?false:null;
   document.getElementById('study_id').value=r.study_id;
@@ -1491,13 +1502,26 @@ async function saveRecord(){
   if(currentDexaDone===true){
     var n2=CORE_DEXA_S.filter(id=>d[id]&&d[id]!=='').length;
     d._completion=Math.min(Math.round((n1+nm+n2)/(CORE_OPJ_S.length+CORE_MANO_S.length+CORE_DEXA_S.length)*100),100);
-  }else if(currentDexaDone===false){
-    d._completion=Math.min(Math.round((n1+nm)/(CORE_OPJ_S.length+CORE_MANO_S.length)*100),100);
   }else{
-    d._completion=Math.min(Math.round(n1/CORE_OPJ_S.length*100),100);
+    d._completion=Math.min(Math.round((n1+nm)/(CORE_OPJ_S.length+CORE_MANO_S.length)*100),100);
   }
-  var ex=records.find(r=>r.study_id===d.study_id);
-  if(ex&&ex._fireId)d._fireId=ex._fireId;
+  if(currentIsNew){
+    // 새 환자: _fireId 절대 사용 안 함, study_id 충돌 최종 확인
+    delete d._fireId;
+    var allRecsCheck=window._records||records||[];
+    var conflict=allRecsCheck.some(function(r){return r.study_id===d.study_id;});
+    if(conflict){
+      // 충돌 시 새 ID 재생성
+      currentStudyId=generateId();
+      d.study_id=currentStudyId;
+      var sid2=document.getElementById('study_id');
+      if(sid2)sid2.value=currentStudyId;
+    }
+  }else{
+    // 기존 환자 편집: _fireId 복사
+    var ex=records.find(function(r){return r.study_id===d.study_id;});
+    if(ex&&ex._fireId)d._fireId=ex._fireId;
+  }
   showToast('저장 중...');
   var ok=await window.saveToFirebase(d);
   if(ok){
@@ -1610,6 +1634,32 @@ async function deleteSelectedRecords(){
   selectedIds.clear();
   renderList();
   showToast('✅ '+toDelete.length+'명 삭제 완료');
+}
+function exportSubjectList(){
+  var recs=window._records||records||[];
+  if(!recs.length){showToast('데이터가 없습니다.');return;}
+  var wb=XLSX.utils.book_new();
+  var header=['','연구번호','영문이니셜','성별','생년월일','초진','FISI','Wexner','DEXA시행','측정일'];
+  var rows=recs.map(function(r){
+    var sex=r.sex===0||r.sex==='0'?'F':r.sex===1||r.sex==='1'?'M':(r.sex||'');
+    return [
+      '',
+      r.study_id||'',
+      r.reg_no||'',
+      sex,
+      r.dob||'',
+      r.opj_date||'',
+      r.opj_fisi!==undefined&&r.opj_fisi!==''?r.opj_fisi:'x',
+      r.opj_wexner!==undefined&&r.opj_wexner!==''?r.opj_wexner:'x',
+      r.dexa_done===1?'O':r.dexa_done===0?'X':'x',
+      r.meas_date||'x'
+    ];
+  });
+  var ws=XLSX.utils.aoa_to_sheet([header,...rows]);
+  ws['!cols']=[{wch:4},{wch:16},{wch:12},{wch:8},{wch:14},{wch:14},{wch:8},{wch:10},{wch:10},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws,'대상자 목록');
+  XLSX.writeFile(wb,'DEXA_CRF_대상자목록_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  showToast('✅ 대상자 목록 추출 완료 ('+recs.length+'명)');
 }
 async function exportExcel(mode){
   mode=mode||"all";
@@ -2396,7 +2446,17 @@ document.addEventListener('DOMContentLoaded',function(){
     var p1m=raw.match(/==PART1:\s*JSON==\s*([\s\S]*?)==ENDPART1==/i);
     if(p1m) jsonPart=p1m[1];
     var parsed={};
-    try{var m=jsonPart.match(/\{[\s\S]*\}/);if(m)parsed=JSON.parse(m[0]);}catch(e){}
+    var parseErr='';
+    try{
+      var clean=jsonPart.replace(/^```(?:json)?\n?/im,'').replace(/```\s*$/m,'').trim();
+      var jm=clean.match(/\{[\s\S]*\}/);
+      if(jm){
+        var jsonStr=jm[0].replace(/,\s*([}\]])/g,'$1');
+        parsed=JSON.parse(jsonStr);
+      } else { parseErr='JSON 블록을 찾지 못했어요.'; }
+    }catch(e2){ parseErr='JSON 파싱 오류: '+e2.message; }
+    if(parseErr){ showToast('⚠️ '+parseErr); console.error('JSON parse fail:', parseErr, jsonPart.slice(0,300)); return; }
+    if(Object.keys(parsed).length===0){ showToast('⚠️ 빈 JSON이에요. Gemini 답변을 확인해주세요.'); return; }
 
     // ── 텍스트값 → 숫자코드 자동 변환 ──
     var convMap={
