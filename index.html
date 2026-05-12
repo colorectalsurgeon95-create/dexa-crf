@@ -1478,20 +1478,16 @@ function loadRecord(idx){
 function updateStatus(msg){var e=document.getElementById('db-status');if(e)e.textContent=msg;}
 async function saveRecord(){
   var d=getFormData();
-  if(!d.study_id){showToast('오류: study_id 없음');return;}
-  // 등록번호 중복 확인
-  if(d.reg_no&&d.reg_no.trim()){
-    var allRecs=window._records||records||[];
-    var dup=allRecs.filter(function(r){
-      return r.reg_no&&r.reg_no.trim()===d.reg_no.trim()&&r.study_id!==d.study_id;
-    });
-    if(dup.length){
-      var dupInfo=dup.map(function(r){return r.study_id+' ('+( r.opj_date||'-')+')';}).join(', ');
-      if(!confirm('⚠️ 같은 이니셜이 이미 있습니다!\n\n기존 대상자: '+dupInfo+'\n\n그래도 저장하시겠습니까?'))return;
-    }
+  if(!d.study_id||d.study_id.indexOf('????')>=0){
+    showToast('⏳ ID 생성 중입니다. 잠시 후 다시 시도해주세요.');return;
   }
-  // records 항상 최신 동기화
-  if(window._records)records=window._records;
+
+  // 1. 저장 전 Firebase에서 최신 records 로드 (source of truth)
+  showToast('저장 중...');
+  try{ await window.loadFromFirebase(); }catch(e){}
+  var freshRecs=window._records||[];
+
+  // 2. 완성도 계산
   var CORE_OPJ_S=['opj_date','opj_cc','opj_fisi','opj_wexner','opj_onset_yr','opj_episode','opj_constipation','opj_diarrhea','opj_loose','opj_defecation','opj_smoking','opj_para_na','opj_dm','opj_resting_tone','opj_squeeze','opj_muschel','opj_assessment','opj_plan'];
   if(d.opj_para_na===''||d.opj_para_na==='0') CORE_OPJ_S.push('opj_para_total');
   if(d.opj_cvs_yn==='1') CORE_OPJ_S.push('opj_cvs_result');
@@ -1505,51 +1501,58 @@ async function saveRecord(){
   }else{
     d._completion=Math.min(Math.round((n1+nm)/(CORE_OPJ_S.length+CORE_MANO_S.length)*100),100);
   }
+
+  // 3. 이니셜 중복 확인
+  if(d.reg_no&&d.reg_no.trim()){
+    var dup=freshRecs.filter(function(r){
+      return r.reg_no&&r.reg_no.trim()===d.reg_no.trim()&&r.study_id!==d.study_id;
+    });
+    if(dup.length){
+      var dupInfo=dup.map(function(r){return r.study_id+' ('+(r.opj_date||'-')+')';}).join(', ');
+      if(!confirm('⚠️ 같은 이니셜이 이미 있습니다!\n\n기존 대상자: '+dupInfo+'\n\n그래도 저장하시겠습니까?'))return;
+    }
+  }
+
+  // 4. 신규 vs 편집 구분 (_fireId 결정)
   if(currentIsNew){
-    // 새 환자: _fireId 절대 사용 안 함, study_id 충돌 최종 확인
     delete d._fireId;
-    var allRecsCheck=window._records||records||[];
-    var conflict=allRecsCheck.some(function(r){return r.study_id===d.study_id;});
-    if(conflict){
-      // 충돌 시 새 ID 재생성
-      currentStudyId=generateId();
+    // study_id 충돌 시 재생성
+    var usedNums=new Set();
+    freshRecs.forEach(function(r){
+      if(r.study_id){var m=r.study_id.match(/DM-(\d+)-/);if(m)usedNums.add(parseInt(m[1]));}
+    });
+    var existing=freshRecs.some(function(r){return r.study_id===d.study_id;});
+    if(existing){
+      var n=1;while(usedNums.has(n))n++;
+      currentStudyId='DM-'+String(n).padStart(4,'0')+'-'+new Date().getFullYear();
       d.study_id=currentStudyId;
       var sid2=document.getElementById('study_id');
       if(sid2)sid2.value=currentStudyId;
     }
   }else{
-    // 기존 환자 편집: _fireId 복사
-    var ex=records.find(function(r){return r.study_id===d.study_id;});
+    // 편집: Firebase에서 방금 로드한 freshRecs에서 _fireId 가져옴
+    var ex=freshRecs.find(function(r){return r.study_id===d.study_id;});
     if(ex&&ex._fireId)d._fireId=ex._fireId;
   }
-  showToast('저장 중...');
+
+  // 5. Firebase 저장
   var ok=await window.saveToFirebase(d);
-  if(ok){
-    // records 배열 업데이트
-    var idx=records.findIndex(r=>r.study_id===d.study_id);
-    if(idx>=0)records[idx]=d;
-    else records.push(d);
-    // window._records 동기화
-    if(window._records){
-      var widx=window._records.findIndex(r=>r.study_id===d.study_id);
-      if(widx>=0)window._records[widx]=d;
-      else window._records.push(d);
-    } else {
-      window._records=records.slice();
-    }
-    showToast('✅ 저장 완료 — '+d.study_id);
-    if(typeof updateStatus==='function')updateStatus('✅ DB 연결됨 — '+records.length+'명');
-    renderList();
-    switchMain('list');
-    // 목록 맨 위로 스크롤
-    setTimeout(function(){
-      var listEl=document.getElementById('main-list');
-      if(listEl)listEl.scrollTop=0;
-      window.scrollTo({top:0,behavior:'smooth'});
-    },100);
-  } else {
-    showToast('❌ 저장 오류 — Firebase 연결을 확인하세요.');
-  }
+  if(!ok){showToast('❌ 저장 오류 — Firebase 연결을 확인하세요.');return;}
+
+  // 6. 저장 후 Firebase에서 다시 로드 (전체 목록 갱신)
+  try{ await window.loadFromFirebase(); }catch(e){}
+  records=window._records||records;
+
+  showToast('✅ 저장 완료 — '+d.study_id);
+  if(typeof updateStatus==='function')updateStatus('✅ DB 연결됨 — '+records.length+'명');
+
+  // 7. 목록으로 이동 (loadFromFirebase 이미 완료됐으므로 renderList만 호출)
+  renderList();
+  // main-list 직접 show (switchMain 대신 - 추가 loadFromFirebase 방지)
+  document.getElementById('main-form').style.display='none';
+  document.getElementById('main-list').style.display='block';
+  document.getElementById('main-help').style.display='none';
+  setTimeout(function(){window.scrollTo({top:0,behavior:'smooth'});},100);
 }
 function setListFilter(f){currentListFilter=f;["all","dexa","nodexa"].forEach(k=>{var b=document.getElementById("filter-"+k+"-btn");if(b){b.style.cssText=k===f?"padding:5px 12px;font-size:12px;background:var(--text);color:var(--bg);border:none;":"padding:5px 12px;font-size:12px;background:transparent;border:0.5px solid var(--border2);color:var(--text);";}}); renderList();}
 function renderList(){
