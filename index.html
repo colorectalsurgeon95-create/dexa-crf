@@ -155,6 +155,8 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
 .pmhx-yr{width:70px;font-size:12px;border:none;background:transparent;color:var(--text);outline:none;text-align:right;}
 .pmhx-del{font-size:16px;color:var(--text3);cursor:pointer;padding:0 4px;line-height:1;background:none;border:none;}
 .pmhx-del:hover{color:#e24b4a;}
+.pmhx-quick-btn{font-size:11px;padding:3px 9px;border:0.5px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--text2);cursor:pointer;transition:.15s;}
+.pmhx-quick-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--bg);}
 .pmhx-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:2px;}
 .pmhx-table th{padding:5px 8px;text-align:left;font-size:10px;font-weight:600;color:var(--text2);background:var(--bg3);border:0.5px solid var(--border);}
 .pmhx-table td{padding:4px 6px;border:0.5px solid var(--border);vertical-align:middle;}
@@ -277,6 +279,19 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
       <!-- PI 코딩 — 동적 렌더링 (AI가 새 항목 발견 시 자동 추가) -->
       <div id="pi-coding-box" style="background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:6px;"></div>
 
+      <!-- 유산균 — 자유기술문 영역 -->
+      <div class="opj-line">
+        <div class="field" style="width:220px">
+          <label>유산균 복용 <span style="font-weight:400;color:var(--text3);">(+/-)</span></label>
+          <select id="opj_probiotics" onchange="mOpj(this)">
+            <option value="">선택</option>
+            <option value="1">+ (현재 복용 중)</option>
+            <option value="0">- (복용 안 함)</option>
+            <option value="2">복용 중단</option>
+          </select>
+        </div>
+      </div>
+
       <!-- FISI -->
       <div class="opj-line">
         <div style="background:var(--bg2);border-radius:var(--radius);padding:10px 12px;border:0.5px solid var(--border);flex:1">
@@ -305,20 +320,6 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
         </div>
       </div>
 
-      <!-- Prev CVS -->
-      <div class="opj-line">
-        <div class="field" style="width:90px"><label>Prev. CVS</label><select id="opj_cvs_yn" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
-        <div class="field" style="width:150px"><label>결과</label><select id="opj_cvs_result" onchange="mOpj(this)"><option value="">선택</option><option value="0">WNL</option><option value="1">폴립 제거</option><option value="2">선종</option><option value="3">암</option><option value="4">기타</option></select></div>
-        <div class="field" style="flex:1"><label>상세</label><input type="text" id="opj_cvs_detail" placeholder="예: polypectomy x1" oninput="mOpj(this)"></div>
-        <div class="field" style="width:100px"><label>시기 (년 전)</label><input type="number" min="0" id="opj_cvs_yr" placeholder="예: 13" oninput="mOpj(this)"></div>
-      </div>
-      <!-- CVS Findings -->
-      <div class="opj-line" id="cvs-findings-wrap">
-        <div class="field" style="flex:1">
-          <label>Findings <span style="font-weight:400;color:var(--text3);">(대장내시경 소견 자유 기술)</span></label>
-          <textarea id="opj_cvs_findings" rows="2" placeholder="예: Cecum까지 관찰함. Proximal T colon에 10mm Is polyp이 보여 EMR로 제거함." oninput="mOpj(this)" style="width:100%;font-size:12px;padding:6px 8px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);resize:vertical;font-family:inherit;line-height:1.5;"></textarea>
-        </div>
-      </div>
       <!-- Onset -->
       <div class="opj-line">
         <div class="field" style="width:130px"><label>Onset (년 전)</label><input type="number" min="0" id="opj_onset_yr" placeholder="예: 9" oninput="mOpj(this)"></div>
@@ -368,7 +369,7 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
 
         <div class="opj-line"><div class="field" style="width:160px"><label>Spinal injury</label><select id="opj_spinal" onchange="mOpj(this)"><option value="">선택</option><option value="0">없음</option><option value="1">압박골절</option><option value="2">척추관협착증</option><option value="3">HIVD/디스크</option><option value="4">척추수술</option><option value="5">낙상/외상</option><option value="6">기타</option></select></div><div class="field" style="flex:1"><label>상세</label><input type="text" id="opj_spinal_detail" placeholder="예: 문에 부딪힘" oninput="mOpj(this)"></div><div class="field" style="width:100px"><label>시기 (년 전)</label><input type="number" min="0" id="opj_spinal_yr" placeholder="예: 2" oninput="mOpj(this)"></div></div>
 
-        <div class="opj-line"><div class="field" style="width:160px"><label>Dementia</label><select id="opj_dementia" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div></div>
+        <div class="opj-line"><div class="field" style="width:220px"><label>Dementia / 인지장애</label><select id="opj_dementia" onchange="mOpj(this)"><option value="">선택</option><option value="0">0 – 없음 (-)</option><option value="1">1 – 경도인지장애 (MCI)</option><option value="2">2 – 치매 (Dementia)</option><option value="9">모름</option></select></div></div>
 
         <div class="opj-line"><div class="field" style="width:200px"><label>BMI (신장/체중)</label><input type="text" id="opj_bmi_raw" placeholder="예: 163/62" oninput="mOpj(this)"></div></div>
 
@@ -380,10 +381,6 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
             <div class="field" style="width:110px"><label>갑년 (자동계산)</label><input type="number" step="0.1" id="opj_smoking_py" readonly style="color:var(--green);cursor:default" placeholder="자동"></div>
             <div class="field" style="flex:1;min-width:120px"><label>흡연 상세 <span style="font-weight:400;color:var(--text3);">(예: 1/3*30y)</span></label><input type="text" id="opj_smoking_detail" placeholder="예: 1/3*30y" oninput="mOpj(this)"></div>
           </div>
-        </div>
-
-        <div class="opj-line">
-          <div class="field" style="width:180px"><label>유산균 복용</label><select id="opj_probiotics" onchange="mOpj(this)"><option value="">선택</option><option value="1">유 (현재 복용 중)</option><option value="0">무 (복용 안 함)</option><option value="2">복용 중단</option></select></div>
         </div>
 
         <div class="opj-line">
@@ -432,36 +429,61 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
           <div class="field" style="width:110px"><label>DM</label><select id="opj_dm" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
           <div class="field" style="flex:1"><label>DM 메모</label><input type="text" id="opj_dm_memo" placeholder="예: 당뇨전단계" oninput="mOpj(this)"></div>
         </div>
+
+        <!-- Prev CVS (차트 순서: DM 다음) -->
         <div class="opj-line">
-          <div class="field" style="width:110px"><label>HTN</label><select id="opj_htn" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
-          <div class="field" style="width:80px"><label>시기 (년 전)</label><input type="number" min="0" id="opj_htn_yr" placeholder="예: 5" oninput="mOpj(this)"></div>
-          <div class="field" style="width:110px"><label>HL</label><select id="opj_hl" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
-          <div class="field" style="width:80px"><label>시기 (년 전)</label><input type="number" min="0" id="opj_hl_yr" placeholder="예: 5" oninput="mOpj(this)"></div>
+          <div class="field" style="width:90px"><label>Prev. CVS</label><select id="opj_cvs_yn" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
+          <div class="field" style="width:150px"><label>결과</label><select id="opj_cvs_result" onchange="mOpj(this)"><option value="">선택</option><option value="0">WNL</option><option value="1">폴립 제거</option><option value="2">선종</option><option value="3">암</option><option value="4">기타</option></select></div>
+          <div class="field" style="flex:1"><label>상세</label><input type="text" id="opj_cvs_detail" placeholder="예: polypectomy x1" oninput="mOpj(this)"></div>
+          <div class="field" style="width:100px"><label>시기 (년 전)</label><input type="number" min="0" id="opj_cvs_yr" placeholder="예: 13" oninput="mOpj(this)"></div>
+        </div>
+        <div class="opj-line" id="cvs-findings-wrap">
+          <div class="field" style="flex:1">
+            <label>Findings <span style="font-weight:400;color:var(--text3);">(대장내시경 소견 자유 기술)</span></label>
+            <textarea id="opj_cvs_findings" rows="2" placeholder="예: Cecum까지 관찰함. Proximal T colon에 10mm Is polyp이 보여 EMR로 제거함." oninput="mOpj(this)" style="width:100%;font-size:12px;padding:6px 8px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);resize:vertical;font-family:inherit;line-height:1.5;"></textarea>
+          </div>
+        </div>
+
+        <!-- 히든 필드: HTN/HL (데이터 추출용, Other PMHx에서 입력) -->
+        <input type="hidden" id="opj_htn" oninput="mOpj(this)">
+        <input type="hidden" id="opj_htn_yr" oninput="mOpj(this)">
+        <input type="hidden" id="opj_hl" oninput="mOpj(this)">
+        <input type="hidden" id="opj_hl_yr" oninput="mOpj(this)">
+        <div class="opj-line">
           <div class="field" style="width:130px"><label>UI (요실금)</label><select id="opj_ui" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
           <div class="field" style="width:80px"><label>시기 (년 전)</label><input type="number" min="0" id="opj_ui_yr" placeholder="예: 5" oninput="mOpj(this)"></div>
           <div class="field" style="width:110px"><label>폐경</label><select id="opj_menopause" onchange="mOpj(this)"><option value="">선택</option><option value="0">- (없음)</option><option value="1">+ (있음)</option><option value="9">모름</option></select></div>
           <div class="field" style="width:80px"><label>시기 (년 전)</label><input type="number" min="0" id="opj_menopause_yr" placeholder="예: 5" oninput="mOpj(this)"></div>
         </div>
+        <!-- 히든 필드: 심혈관/혈액 (데이터 추출용, Other PMHx에서 입력) -->
+        <input type="hidden" id="opj_cardiac" oninput="mOpj(this)">
+        <input type="hidden" id="opj_cardiac_yr" oninput="mOpj(this)">
+        <input type="hidden" id="opj_hematologic" oninput="mOpj(this)">
+        <input type="hidden" id="opj_hematologic_yr" oninput="mOpj(this)">
         <div class="opj-line">
-          <div class="field" style="width:130px"><label>심혈관질환</label><select id="opj_cardiac" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
-          <div class="field" style="width:80px"><label>시기 (년 전)</label><input type="number" min="0" id="opj_cardiac_yr" placeholder="예: 5" oninput="mOpj(this)"></div>
-          <div class="field" style="width:130px"><label>혈액질환</label><select id="opj_hematologic" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
-          <div class="field" style="width:80px"><label>시기 (년 전)</label><input type="number" min="0" id="opj_hematologic_yr" placeholder="예: 5" oninput="mOpj(this)"></div>
           <div class="field" style="width:130px"><label>악성종양</label><select id="opj_cancer" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
           <div class="field" style="width:80px"><label>시기 (년 전)</label><input type="number" min="0" id="opj_cancer_yr" placeholder="예: 5" oninput="mOpj(this)"></div>
           <div class="field" style="flex:1"><label>악성종양 상세</label><input type="text" id="opj_cancer_memo" placeholder="예: 폐암, 표적항암제" oninput="mOpj(this)"></div>
         </div>
 
-        <!-- Other PMHx — 드롭다운 행추가 방식 -->
+        <!-- Other PMHx — KCD 국가표준 분류 -->
         <div style="margin-top:8px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
-            <span style="font-size:11px;font-weight:600;color:var(--text2);">Other PMHx</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:11px;font-weight:600;color:var(--text2);">Other PMHx <span style="font-weight:400;color:var(--text3);">(KCD 표준 분류)</span></span>
             <button class="btn btn-secondary" style="font-size:11px;padding:3px 10px;" onclick="addPmhxRow()">+ 추가</button>
           </div>
-          <div id="opj-pmhx-rows">
-            <!-- 초기 행 없음 — + 추가로 입력 -->
+          <!-- 빠른 선택 버튼 (자주 쓰는 질환) -->
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
+            <span style="font-size:10px;color:var(--text3);align-self:center;margin-right:2px;">빠른 입력 ▶</span>
+            <button type="button" class="pmhx-quick-btn" onclick="addQuickPmhx('I','고혈압(HTN)','opj_htn')">고혈압(HTN)</button>
+            <button type="button" class="pmhx-quick-btn" onclick="addQuickPmhx('E','이상지질혈증(HL)','opj_hl')">이상지질혈증(HL)</button>
+            <button type="button" class="pmhx-quick-btn" onclick="addQuickPmhx('I','심혈관질환','opj_cardiac')">심혈관질환</button>
+            <button type="button" class="pmhx-quick-btn" onclick="addQuickPmhx('D','혈액질환','opj_hematologic')">혈액질환</button>
+            <button type="button" class="pmhx-quick-btn" onclick="addQuickPmhx('F','우울증')">우울증</button>
+            <button type="button" class="pmhx-quick-btn" onclick="addQuickPmhx('I','뇌졸중/CVA')">뇌졸중/CVA</button>
           </div>
-          <div style="font-size:10px;color:var(--text3);padding:4px 0;">계통 선택 → 질환명 → 시기 (년 전)</div>
+          <div id="opj-pmhx-rows"></div>
+          <div style="font-size:10px;color:var(--text3);padding:3px 0;">계통(KCD) → 질환명 → 시기 (년 전)</div>
         </div>
       </div>
 
@@ -1241,7 +1263,7 @@ function addRow(containerId, type){
   row.className='pmhx-row';
   row.setAttribute('data-type',type);
   if(type==='pmhx'){
-    row.innerHTML='<select class="pmhx-cat" id="opj_pmhx_'+n+'_cat" onchange="mOpj(this)"><option value="">계통 선택</option><option value="심혈관">심혈관</option><option value="내분비">내분비/대사</option><option value="악성종양">악성종양</option><option value="혈액">혈액질환</option><option value="신경">신경/정신</option><option value="이비인후">이비인후과</option><option value="호흡기">호흡기</option><option value="신장">신장/비뇨기</option><option value="근골격">근골격</option><option value="기타">기타</option></select><input type="text" class="pmhx-name" id="opj_pmhx_'+n+'_name" placeholder="질환명" oninput="mOpj(this)"><input type="number" class="pmhx-yr" id="opj_pmhx_'+n+'_yr" placeholder="몇 년 전" min="0" oninput="mOpj(this)"><span style="font-size:11px;color:var(--text3);">년 전</span><button class="pmhx-del" onclick="removeRow(this)">×</button>';
+    row.innerHTML='<select class="pmhx-cat" id="opj_pmhx_'+n+'_cat" onchange="mOpj(this);syncPmhxHidden(this)"><option value="">계통(KCD)</option><option value="I">I. 순환기 (고혈압·심장·뇌혈관)</option><option value="E">E. 내분비/대사 (당뇨·갑상선·이상지질)</option><option value="C">C. 신생물 (악성종양·암)</option><option value="D">D. 혈액/면역 (빈혈·혈액질환·자가면역)</option><option value="F">F. 정신/행동 (우울·불안·조현병)</option><option value="G">G. 신경계 (뇌졸중·파킨슨·간질)</option><option value="J">J. 호흡기 (천식·COPD·결핵)</option><option value="K">K. 소화기 (위염·간질환·담석)</option><option value="L">L. 피부 (피부질환)</option><option value="M">M. 근골격 (관절염·골다공증·척추)</option><option value="N">N. 비뇨생식기 (신장·요로)</option><option value="H">H. 감각기 (눈·귀·이비인후)</option><option value="A">A/B. 감염성질환</option><option value="Z">Z. 기타</option></select><input type="text" class="pmhx-name" id="opj_pmhx_'+n+'_name" placeholder="질환명 직접 입력" oninput="mOpj(this);syncPmhxHidden(this)"><input type="number" class="pmhx-yr" id="opj_pmhx_'+n+'_yr" placeholder="몇 년 전" min="0" oninput="mOpj(this)"><span style="font-size:11px;color:var(--text3);">년 전</span><button class="pmhx-del" onclick="removeRow(this)">×</button>';
   } else if(type==='ar'){
     row.innerHTML='<select class="pmhx-sel" id="opj_ar_'+n+'_yn" onchange="mOpj(this)"><option value="">선택</option><option>-</option><option>+</option></select><input type="text" class="pmhx-name" id="opj_ar_'+n+'_type" placeholder="수술 종류" oninput="mOpj(this)"><input type="number" class="pmhx-yr" id="opj_ar_'+n+'_yr" placeholder="몇 년 전" min="0" oninput="mOpj(this)"><span style="font-size:11px;color:var(--text3);">년 전</span><button class="pmhx-del" onclick="removeRow(this)">×</button>';
   } else if(type==='hyst'){
@@ -1297,7 +1319,46 @@ function loadSurgeryRows(jsonStr){
     if(inputs[3])inputs[3].value=item.memo||'';
   });
 }
-function removeRow(btn){var row=btn.closest('.pmhx-row');if(row)row.remove();}
+function removeRow(btn){var row=btn.closest('.pmhx-row');if(row)row.remove();syncAllPmhxHidden();}
+
+// 빠른입력: HTN/HL/심혈관/혈액 버튼 클릭 시
+function addQuickPmhx(cat, name, hiddenId){
+  addPmhxRow();
+  var rows=document.querySelectorAll('#opj-pmhx-rows .pmhx-row');
+  var row=rows[rows.length-1];
+  var n=rows.length-1;
+  var catEl=document.getElementById('opj_pmhx_'+n+'_cat');
+  var nmEl=document.getElementById('opj_pmhx_'+n+'_name');
+  if(catEl)catEl.value=cat;
+  if(nmEl)nmEl.value=name;
+  if(hiddenId){
+    var hEl=document.getElementById(hiddenId);
+    if(hEl)hEl.value='1';
+  }
+  mOpj(catEl||nmEl);
+}
+
+// PMHx 행의 질환명 보고 히든필드 동기화
+function syncPmhxHidden(el){
+  setTimeout(syncAllPmhxHidden, 50);
+}
+function syncAllPmhxHidden(){
+  // 초기화
+  ['opj_htn','opj_hl','opj_cardiac','opj_hematologic'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.value='0';
+  });
+  var rows=document.querySelectorAll('#opj-pmhx-rows .pmhx-row');
+  rows.forEach(function(row,i){
+    var nm=document.getElementById('opj_pmhx_'+i+'_name');
+    if(!nm)return;
+    var lower=(nm.value||'').toLowerCase().trim();
+    if(/htn|고혈압/.test(lower)){var e=document.getElementById('opj_htn');if(e)e.value='1';}
+    if(/hl|이상지질|고지혈/.test(lower)){var e=document.getElementById('opj_hl');if(e)e.value='1';}
+    if(/심혈관|cvd|pci|부정맥|허혈성심/.test(lower)){var e=document.getElementById('opj_cardiac');if(e)e.value='1';}
+    if(/혈액질환|빈혈|혈소판|림프종|백혈병/.test(lower)){var e=document.getElementById('opj_hematologic');if(e)e.value='1';}
+  });
+}
 function getRowData(containerId){
   var c=document.getElementById(containerId);if(!c)return[];
   var rows=[];
@@ -1446,8 +1507,8 @@ function loadRecord(idx){
   // DEXA 토글
   setDexaDone(currentDexaDone);
   // 폼 필드 복원
-  ALL_FIELDS.forEach(id=>{var e=document.getElementById(id);if(e&&r[id]!==undefined){e.value=r[id];var p=e.closest('.field');if(p)p.classList.toggle('filled',r[id]!=='');}});
-  OPJ_FIELDS.forEach(id=>{var e=document.getElementById(id);if(e&&r[id]!==undefined){e.value=String(r[id]);var p=e.closest('.field');if(p){p.classList.remove('filled');p.classList.toggle('filled-opj',r[id]!=='');}}});
+  ALL_FIELDS.forEach(id=>{var e=document.getElementById(id);if(e&&r[id]!==undefined&&r[id]!==null&&r[id]!=='null'){e.value=r[id];var p=e.closest('.field');if(p)p.classList.toggle('filled',r[id]!=='');}});
+  OPJ_FIELDS.forEach(id=>{var e=document.getElementById(id);if(e&&r[id]!==undefined&&r[id]!==null&&r[id]!=='null'){e.value=String(r[id]);var p=e.closest('.field');if(p){p.classList.remove('filled');p.classList.toggle('filled-opj',r[id]!=='');}}});
   // 체크박스 복원
   [...CHECKBOX_FIELDS,...OPJ_CHECKS].forEach(id=>{var e=document.getElementById(id);if(e)e.checked=r[id]===1||r[id]===true;});
   // 기타 과거력 동적 행 복원
@@ -1745,7 +1806,7 @@ async function exportExcel(mode){
       // ── 과거력 ──
       opj_spinal_code:spMap[String(r.opj_spinal)]!==undefined?spMap[String(r.opj_spinal)]:'',
       opj_spinal_detail:txt('opj_spinal_detail'), opj_spinal_yr:num('opj_spinal_yr'),
-      opj_dementia_code:c01('opj_dementia'), opj_bmi_raw:txt('opj_bmi_raw'),
+      opj_dementia_code:(function(){var v=r.opj_dementia;return (v===0||v==='0')?0:(v===1||v==='1')?1:(v===2||v==='2')?2:'';}()), opj_bmi_raw:txt('opj_bmi_raw'),
       opj_smoking_code:smokMap[String(r.opj_smoking)]!==undefined?smokMap[String(r.opj_smoking)]:'',
       opj_smoking_yr:num('opj_smoking_yr'), opj_smoking_ppd:num('opj_smoking_ppd'), opj_smoking_py:num('opj_smoking_py'), opj_smoking_detail:txt('opj_smoking_detail'),
       opj_probiotics_code:c01('opj_probiotics'),
@@ -1760,7 +1821,7 @@ async function exportExcel(mode){
       opj_ui_code:c01('opj_ui'), opj_ui_yr:num('opj_ui_yr'), opj_menopause_code:c01('opj_menopause'), opj_menopause_yr:num('opj_menopause_yr'),
       opj_cancer_code:c01('opj_cancer'), opj_cancer_yr:num('opj_cancer_yr'), opj_cancer_memo:txt('opj_cancer_memo'),
       opj_hematologic_code:c01('opj_hematologic'), opj_hematologic_yr:num('opj_hematologic_yr'), opj_cardiac_code:c01('opj_cardiac'), opj_cardiac_yr:num('opj_cardiac_yr'),
-      opj_pmhx_other:(function(){var list=[];try{if(r.opj_pmhx_list){var arr=JSON.parse(r.opj_pmhx_list);arr.forEach(function(x){if(x.name)list.push((x.cat?'['+x.cat+']':'')+x.name+(x.yr?' ('+x.yr+'년전)':''));});}}catch(e){}return list.join('; ');}()),
+      opj_pmhx_other:(function(){var list=[];try{if(r.opj_pmhx_list){var arr=JSON.parse(r.opj_pmhx_list);arr.forEach(function(x){if(x.name)list.push((x.cat?'[KCD:'+x.cat+']':'')+x.name+(x.yr?' ('+x.yr+'년전)':''));});}}catch(e){}return list.join('; ');}()),
       // ── PE/DRE ──
       opj_skin_irr_code:c01('opj_skin_irr'), opj_patulus_code:c01('opj_patulus'),
       opj_perineal_code:c01('opj_perineal'), opj_stool_stain_code:c01('opj_stool_stain'),
@@ -1937,7 +1998,7 @@ async function exportExcel(mode){
     {변수명:'opj_spinal_code',설명:'Spinal injury',타입:'Nominal',코딩:'0=없음 1=압박골절 2=척추관협착증 3=HIVD 4=척추수술 5=낙상외상 6=기타'},
     {변수명:'opj_spinal_detail',설명:'Spinal 상세',타입:'Text',코딩:''},
     {변수명:'opj_spinal_yr',설명:'Spinal 시기(년전)',타입:'Integer',코딩:''},
-    {변수명:'opj_dementia_code',설명:'Dementia',타입:'Binary',코딩:'1=있음(+) / 0=없음(-) / 9=모름'},
+    {변수명:'opj_dementia_code',설명:'Dementia/인지장애',타입:'Ordinal',코딩:'0=없음(-) / 1=경도인지장애(MCI) / 2=치매(Dementia) / 9=모름'},
     {변수명:'opj_bmi_raw',설명:'BMI 원문(신장/체중)',타입:'Text',코딩:'예: 163/62'},
     {변수명:'opj_smoking_code',설명:'흡연',타입:'Nominal',코딩:'0=비흡연 1=과거흡연 2=현재흡연'},
     {변수명:'opj_smoking_yr',설명:'흡연기간(년)',타입:'Integer',코딩:''},
@@ -1959,9 +2020,9 @@ async function exportExcel(mode){
     {변수명:'opj_para_max_wt',설명:'최대 태아체중(kg)',타입:'Continuous',코딩:''},
     {변수명:'opj_dm_code',설명:'DM',타입:'Binary',코딩:'1=있음(+) / 0=없음(-) / 9=모름'},
     {변수명:'opj_dm_memo',설명:'DM 상세',타입:'Text',코딩:''},
-    {변수명:'opj_htn_code',설명:'HTN',타입:'Binary',코딩:'1=있음(+) / 0=없음(-) / 9=모름'},
+    {변수명:'opj_htn_code',설명:'HTN (Other PMHx에서 입력)',타입:'Binary',코딩:'1=있음(+) / 0=없음(-) / 9=모름'},
     {변수명:'opj_htn_yr',설명:'HTN 시기(년 전)',타입:'Integer',코딩:''},
-    {변수명:'opj_hl_code',설명:'HL',타입:'Binary',코딩:'1=있음(+) / 0=없음(-) / 9=모름'},
+    {변수명:'opj_hl_code',설명:'이상지질혈증 HL (Other PMHx에서 입력)',타입:'Binary',코딩:'1=있음(+) / 0=없음(-) / 9=모름'},
     {변수명:'opj_hl_yr',설명:'HL 시기(년 전)',타입:'Integer',코딩:''},
     {변수명:'opj_ui_code',설명:'UI(요실금)',타입:'Binary',코딩:'1=있음(+) / 0=없음(-) / 9=모름'},
     {변수명:'opj_ui_yr',설명:'UI 시기(년 전)',타입:'Integer',코딩:''},
@@ -2242,7 +2303,7 @@ function exportCodebook(){
     {변수명:"opj_spinal_code",설명:"Spinal injury",타입:"Nominal",코딩:"0=없음 / 1=압박골절 / 2=척추관협착증 / 3=HIVD / 4=척추수술 / 5=낙상외상 / 6=기타"},
     {변수명:"opj_spinal_detail",설명:"Spinal 상세",타입:"Text",코딩:""},
     {변수명:"opj_spinal_yr",설명:"Spinal 시기 (년 전)",타입:"Integer",코딩:""},
-    {변수명:"opj_dementia_code",설명:"Dementia",타입:"Binary",코딩:"1=있음(+) / 0=없음(-)"},
+    {변수명:"opj_dementia_code",설명:"Dementia/인지장애",타입:"Ordinal",코딩:"0=없음(-) / 1=경도인지장애(MCI) / 2=치매(Dementia) / 9=모름"},
     {변수명:"opj_bmi_raw",설명:"BMI 원문(신장/체중)",타입:"Text",코딩:""},
     {변수명:"opj_smoking_code",설명:"흡연",타입:"Nominal",코딩:"0=비흡연 / 1=과거흡연 / 2=현재흡연"},
     {변수명:"opj_smoking_yr",설명:"흡연 기간(년)",타입:"Integer",코딩:""},
@@ -2329,7 +2390,8 @@ function renderOpjCheck(){
   lines.push('');
   var spinalTxt=spinalMap[g('opj_spinal')]||(g('opj_spinal')||'-');
   if(g('opj_spinal_detail'))spinalTxt+=' ('+g('opj_spinal_detail')+')';
-  lines.push('Spinal injury: '+spinalTxt+'   Dementia: '+pm(g('opj_dementia')));
+  var demTxt=(function(){var v=g('opj_dementia');return v==='0'?'없음(-)':v==='1'?'경도인지장애(MCI)':v==='2'?'치매':'';})();
+  lines.push('Spinal injury: '+spinalTxt+'   Dementia: '+demTxt);
   lines.push('BMI: '+g('opj_bmi_raw')+'   Smoking: '+pm(g('opj_smoking'))+(g('opj_smoking_detail')?' ('+g('opj_smoking_detail')+')':''));
   lines.push('Prev. AR Sx: '+pm(g('opj_prev_ar_yn'))+(g('opj_prev_ar')?' ('+g('opj_prev_ar')+')':''));
   lines.push('Hysterectomy: '+pm(g('opj_hyst'))+(g('opj_hyst_detail')?' ('+g('opj_hyst_detail')+')':''));
@@ -2345,7 +2407,7 @@ function renderOpjCheck(){
     paraStr=pts.join(', ')||'-';
   }
   lines.push('Para: '+paraStr);
-  lines.push('DM: '+pm(g('opj_dm'))+'   HTN: '+pm(g('opj_htn'))+'   HL: '+pm(g('opj_hl'))+'   UI: '+pm(g('opj_ui'))+'   폐경: '+pm(g('opj_menopause'))+'   악성종양: '+pm(g('opj_cancer')));
+  lines.push('DM: '+pm(g('opj_dm'))+'   UI: '+pm(g('opj_ui'))+'   폐경: '+pm(g('opj_menopause'))+'   악성종양: '+pm(g('opj_cancer')));
   lines.push('Prev. CVS: '+pm(g('opj_cvs_yn'))+(g('opj_cvs')?' '+g('opj_cvs'):''));
   if(g('opj_pmhx'))lines.push('Other PMHx: '+g('opj_pmhx'));
   lines.push('');
@@ -2377,7 +2439,7 @@ document.addEventListener('DOMContentLoaded',function(){
   renderPiCodingBox();
 
   // ===== 초진: Gemini 방식 파싱 =====
-  var OPJ_PROMPT='아래는 외래 초진 차트입니다. 구조화된 JSON만 반환하세요. 설명 없이 JSON만.\n\n※ 코드 규칙 (반드시 준수):\n- opj_pain: 무=0, 유=1\n- opj_smoking: 비흡연/-=0, 과거흡연=1, 현재흡연=2\n- opj_constipation/diarrhea/loose/prev_ar_yn/hyst/dm/dementia/skin_irr/patulus/perineal/stool_stain/feces: +=1, -=0\n- opj_spinal: 없음/-=0, 압박골절=1, 척추관협착증=2, HIVD=3, 척추수술=4, 낙상/외상=5, 기타=6\n- opj_cvs_result: WNL=0, 폴립제거=1, 선종=2, 암=3, 기타=4\n- opj_prev_ar_type: hemorrhoidectomy=1, fistulectomy=2, sphincteroplasty=3, STARR=4, 기타=5\n- opj_resting_tone: decreased=1, slightly decreased=2, WNL/normal/정상=3, increased=4\n- opj_squeeze: decreased=1, slightly/mild decreased=2, WNL/normal/정상=3, increased=4\n- opj_muschel: none/not good=0, fair/so so=1, good/정상=2, WNL=3\n- opj_cvs_yn: -=0, +=1\n- opj_para_na: 분만력있음=0, 미혼=1, 기혼(분만력없음)/Para:0=2\n\n추출 필드:\n{\n  "opj_date":"YYYY-MM-DD",\n  "opj_cc":"CC 한줄",\n  "opj_pain":0또는1,\n  "opj_pi_text":"PI 자유서술 원문 그대로",\n  "opj_fisi":숫자,\n  "opj_wexner":숫자,\n  "opj_cvs_yn":0또는1,\n  "opj_cvs_result":0-4,\n  "opj_cvs_detail":"상세텍스트",\n  "opj_cvs_yr":년전숫자,\n  "opj_onset_yr":발병년수숫자,\n  "opj_episode":"빈도텍스트",\n  "opj_constipation":0또는1,\n  "opj_diarrhea":0또는1,\n  "opj_loose":0또는1,\n  "opj_defecation":"배변빈도텍스트",\n  "opj_spinal":0-6,\n  "opj_spinal_detail":"상세텍스트(있을때만)",\n  "opj_spinal_yr":년전숫자(있을때만),\n  "opj_dementia":0또는1,\n  "opj_bmi_raw":"신장/체중원문",\n  "opj_smoking":0또는1또는2,\n  "opj_smoking_yr":흡연기간년수(흡연자만),\n  "opj_smoking_ppd":하루갑수(흡연자만),\n  "opj_prev_ar_yn":0또는1,\n  "opj_prev_ar_type":1-5(수술있을때만),\n  "opj_prev_ar_detail":"기타상세(5번일때)",\n  "opj_prev_ar_yr":년전숫자,\n  "opj_hyst":0또는1,\n  "opj_hyst_type":"수술종류텍스트(있을때만)",\n  "opj_hyst_yr":년전숫자(있을때만),\n  "opj_para_na":0=분만력있음 1=미혼 2=기혼무산,\n  "opj_para_total":총분만횟수숫자,\n  "opj_para_vd":VD횟수숫자,\n  "opj_para_cs":CS횟수숫자,\n  "opj_para_forceps":0또는1,\n  "opj_para_max_wt":최대태아체중kg숫자,\n  "opj_dm":0또는1,\n  "opj_dm_memo":"메모(있을때만)",\n  "opj_pmhx_list":[{"cat":계통코드숫자,"name":"질환명","yr":년전숫자}],\n  "opj_skin_irr":0또는1,\n  "opj_patulus":0또는1,\n  "opj_perineal":0또는1,\n  "opj_stool_stain":0또는1,\n  "opj_feces":0또는1,\n  "opj_pe_etc":"기타PE소견(있을때만)",\n  "opj_resting_tone":1-4,\n  "opj_squeeze":1-4,\n  "opj_muschel":0-3,\n  "opj_assessment":"진단텍스트",\n  "opj_plan":"계획텍스트"\n}\n\n※ opj_pmhx_list 계통코드: 1=HTN 2=HL 3=UI 4=폐경 5=악성종양 6=혈액질환 7=심혈관 8=뇌혈관 9=치매 10=파킨슨 11=갑상선 12=호흡기 13=신장비뇨기 14=이비인후 15=근골격 99=기타\n예시: [{"cat":1,"name":"HTN","yr":5},{"cat":5,"name":"자궁내막암","yr":20}]\n\n차트:\n[여기에 초진 텍스트 붙여넣기]';
+  var OPJ_PROMPT='아래는 외래 초진 차트입니다. 구조화된 JSON만 반환하세요. 설명 없이 JSON만.\n\n※ 코드 규칙 (반드시 준수):\n- opj_pain: 무=0, 유=1\n- opj_smoking: 비흡연/-=0, 과거흡연=1, 현재흡연=2\n- opj_constipation/diarrhea/loose/prev_ar_yn/hyst/dm/skin_irr/patulus/perineal/stool_stain/feces: +=1, -=0\n- opj_dementia: 없음/-=0, 경도인지장애/MCI/인지기능저하=1, 치매/Dementia=2\n- opj_spinal: 없음/-=0, 압박골절=1, 척추관협착증=2, HIVD=3, 척추수술=4, 낙상/외상=5, 기타=6\n- opj_cvs_result: WNL=0, 폴립제거=1, 선종=2, 암=3, 기타=4\n- opj_prev_ar_type: hemorrhoidectomy=1, fistulectomy=2, sphincteroplasty=3, STARR=4, 기타=5\n- opj_resting_tone: decreased=1, slightly decreased=2, WNL/normal/정상=3, increased=4\n- opj_squeeze: decreased=1, slightly/mild decreased=2, WNL/normal/정상=3, increased=4\n- opj_muschel: none/not good=0, fair/so so=1, good/정상=2, WNL=3\n- opj_cvs_yn: -=0, +=1\n- opj_para_na: 분만력있음=0, 미혼=1, 기혼(분만력없음)/Para:0=2\n\n추출 필드:\n{\n  "opj_date":"YYYY-MM-DD",\n  "opj_cc":"CC 한줄",\n  "opj_pain":0또는1,\n  "opj_pi_text":"PI 자유서술 원문 그대로",\n  "opj_fisi":숫자,\n  "opj_wexner":숫자,\n  "opj_cvs_yn":0또는1,\n  "opj_cvs_result":0-4,\n  "opj_cvs_detail":"상세텍스트",\n  "opj_cvs_yr":년전숫자,\n  "opj_onset_yr":발병년수숫자,\n  "opj_episode":"빈도텍스트",\n  "opj_constipation":0또는1,\n  "opj_diarrhea":0또는1,\n  "opj_loose":0또는1,\n  "opj_defecation":"배변빈도텍스트",\n  "opj_spinal":0-6,\n  "opj_spinal_detail":"상세텍스트(있을때만)",\n  "opj_spinal_yr":년전숫자(있을때만),\n  "opj_dementia":0=없음 1=경도인지장애 2=치매,\n  "opj_bmi_raw":"신장/체중원문",\n  "opj_smoking":0또는1또는2,\n  "opj_smoking_yr":흡연기간년수(흡연자만),\n  "opj_smoking_ppd":하루갑수(흡연자만),\n  "opj_prev_ar_yn":0또는1,\n  "opj_prev_ar_type":1-5(수술있을때만),\n  "opj_prev_ar_detail":"기타상세(5번일때)",\n  "opj_prev_ar_yr":년전숫자,\n  "opj_hyst":0또는1,\n  "opj_hyst_type":"수술종류텍스트(있을때만)",\n  "opj_hyst_yr":년전숫자(있을때만),\n  "opj_para_na":0=분만력있음 1=미혼 2=기혼무산,\n  "opj_para_total":총분만횟수숫자,\n  "opj_para_vd":VD횟수숫자,\n  "opj_para_cs":CS횟수숫자,\n  "opj_para_forceps":0또는1,\n  "opj_para_max_wt":최대태아체중kg숫자,\n  "opj_dm":0또는1,\n  "opj_dm_memo":"메모(있을때만)",\n  "opj_pmhx_list":[{"cat":계통코드숫자,"name":"질환명","yr":년전숫자}],\n  "opj_skin_irr":0또는1,\n  "opj_patulus":0또는1,\n  "opj_perineal":0또는1,\n  "opj_stool_stain":0또는1,\n  "opj_feces":0또는1,\n  "opj_pe_etc":"기타PE소견(있을때만)",\n  "opj_resting_tone":1-4,\n  "opj_squeeze":1-4,\n  "opj_muschel":0-3,\n  "opj_assessment":"진단텍스트",\n  "opj_plan":"계획텍스트"\n}\n\n※ opj_pmhx_list 계통코드: 1=HTN 2=HL 3=UI 4=폐경 5=악성종양 6=혈액질환 7=심혈관 8=뇌혈관 9=치매 10=파킨슨 11=갑상선 12=호흡기 13=신장비뇨기 14=이비인후 15=근골격 99=기타\n예시: [{"cat":1,"name":"HTN","yr":5},{"cat":5,"name":"자궁내막암","yr":20}]\n\n차트:\n[여기에 초진 텍스트 붙여넣기]';
 
 
   function renderParsed(p){
@@ -2426,7 +2488,7 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   // ===== 통합 프롬프트: JSON(폼입력) + 리포트(뷰어) 동시 =====
-  var PROMPT_JSON='당신은 한국 대장항문외과 변실금 코호트 연구의 CRF 데이터 입력 전문가입니다.\n아래 초진 차트(+DEXA 이미지+마노메트리 이미지)를 분석합니다.\n\n【필수 규칙】\n1. PI 체크박스(pi_sit_*, pi_sx_*, pi_lk_*, pi_pad, pi_ag_*, pi_crs_*, pi_tx_*)는 해당=1, 비해당=0으로 모두 반환. 누락 금지.\n2. opj_probiotics: 차트에 "유산균-" "유산균 안함" "유산균 없음"이면 반드시 0. "유산균+" "유산균 복용 중"이면 1.\n3. opj_cardiac: PMHx에 CVD, 심장, PCI, 부정맥, 뇌졸중, CVA, 뇌경색 등이 있으면 1.\n4. opj_onset_yr: Onset 텍스트(3YA, 10MA 등)에서 숫자만 추출하여 정수로 반환.\n5. pi_ag_food: 특정 음식(국물, 기름진 음식, 쑥떡 등) 언급 시 1.\n6. pi_ag_postdefec: "변 본 후 더 샘" "배변 후 누출" 언급 시 1.\n7. pi_ag_exercise: "걸을 때" "운동 시" "활동 시" 샌다고 언급 시 1.\n8. pi_tx_*: 이전 치료력 반드시 파악. 치료받은 적 없으면 pi_tx_none=1. 약물=pi_tx_drug=1. 전기치료=pi_tx_electric=1.\n9. pi_crs_*: 3년 이상 지속이면 pi_crs_intermittent 또는 pi_crs_worsening 판단.\n10. 반환 전 한 번 더 검토하여 누락/오류 없도록.\n없는 항목은 생략. 숫자는 단위 없이.\n\n【코드표 — 반드시 아래 숫자코드로 반환】\n- opj_pain: 유=1, 무=0\n- opj_smoking: 비흡연/-=0, 과거흡연=1, 현재흡연=2\n- opj_probiotics: 현재복용중(유산균+)=1, 복용안함/없음/유산균-/-=0, 복용중단=2 ※주의: 차트에 "유산균-"이면 반드시 0\n- opj_spinal: 없음/-=0, 압박골절=1, 척추관협착증=2, HIVD/디스크=3, 척추수술/감압술/고정술=4, 낙상/외상=5, 기타=6\n- opj_dementia: 없음/-=0, 있음/인지장애/치매=1\n- opj_prev_ar_yn: 없음/-=0, 있음=1\n- opj_prev_ar_type: 치핵수술=1, 치루수술=2, 괄약근성형=3, STARR=4, 기타=5\n- opj_hyst: 없음/-=0, 있음=1\n- opj_para: 없음/-이면 "-", 있으면 원문그대로(예:"3,VD,4.2kg"), 미혼이면 "미혼"\n- opj_dm/htn/hl/ui/menopause/cancer/cardiac/hematologic: 없음/-=0, 있음=1\n- opj_cvs: 없으면 "-", 있으면 텍스트(예:"2YA,WNL"/"3년전,폴립제거")\n- opj_constipation/diarrhea/loose: +=1, -=0\n- opj_resting_tone/opj_squeeze: decreased=1, slightly/mild decreased=2, WNL/정상=3, increased=4\n- opj_muschel: none/bad=0, fair=1, good=2, WNL/정상=3\n- opj_cvs_result: WNL/이상없음=0, 폴립제거=1, 선종=2, 암=3, 기타=4\n- pi_sit_*/pi_sx_*/pi_lk_*/pi_pad/pi_ag_*/pi_crs_*/pi_tx_*: 해당=1, 아님=0\n- who_class: 저체중=0, 정상=1, 과체중=2, 비만=3\n- osteo_dx: 정상=0, 골감소증=1, 골다공증=2\n- rair_result/cough_ref: Positive=1, Negative=0\n- bet: Normal=1, Abnormal=0, Not done=9\n- bd_rectal_result: Normal elevation=1, Insufficient=0\n- bd_anal_result: Normal relaxation=1, Incomplete=0, Paradoxical=2\n- sphincter_tone: 저하=1, 정상=2, 증가=3\n\n==PART1: JSON==\n{\n  "opj_date":"YYYY-MM-DD", "opj_cc":"CC한줄", "opj_pain":0또는1,\n\n  "opj_fisi":합계, "opj_fi_gas":0-5, "opj_fi_mucus":0-5, "opj_fi_liquid":0-5, "opj_fi_solid":0-5,\n  "opj_wexner":합계, "opj_wx_solid":0-4, "opj_wx_liquid":0-4, "opj_wx_gas":0-4, "opj_wx_pad":0-4, "opj_wx_life":0-4,\n\n  "opj_onset":"Onset텍스트", "opj_episode":"빈도", "opj_defecation":"배변빈도",\n  "opj_constipation":0또는1, "opj_diarrhea":0또는1, "opj_loose":0또는1,\n\n  "opj_spinal":0-6코드, "opj_spinal_detail":"상세", "opj_spinal_yr":년전숫자,\n  "opj_dementia":0또는1,\n  "opj_bmi_raw":"신장/체중원문",\n  "opj_smoking":0또는1또는2,\n  "opj_probiotics":0또는1또는2,\n  "opj_prev_ar_yn":0또는1, "opj_prev_ar_type":1-5코드, "opj_prev_ar_detail":"상세", "opj_prev_ar_yr":년전,\n  "opj_hyst":0또는1, "opj_hyst_type":"종류", "opj_hyst_yr":년전,\n  "opj_para":"원문또는-",\n  "opj_dm":0또는1, "opj_htn":0또는1, "opj_hl":0또는1,\n  "opj_cvs":"텍스트또는-", "opj_cvs_yr":년전,\n  "opj_ui":0또는1,\n  "opj_menopause":0또는1, "opj_cancer":0또는1, "opj_cancer_memo":"종류",\n  "opj_cardiac":0또는1, "opj_hematologic":0또는1,\n  "opj_pmhx":"Other PMHx — 질병명만 콤마 구분 (병원명/부가설명 제외. 예: HTN, HL, 자가면역간염, CVD)",\n\n  "opj_skin_irr":0또는1, "opj_patulus":0또는1, "opj_perineal":0또는1, "opj_stool_stain":0또는1,\n  "opj_pe_etc":"기타PE", "opj_feces":0또는1,\n  "opj_resting_tone":1-4코드, "opj_squeeze":1-4코드, "opj_muschel":0-3코드,\n\n  "opj_assessment":"텍스트", "opj_plan":"텍스트",\n  "opj_pi_text":"PI핵심요약",\n  "opj_raw_text":"초진차트전체원문그대로",\n\n  "pi_sit_passive":0또는1, "pi_sit_postdefec":0또는1, "pi_sit_strain":0또는1,\n  "pi_sit_nocturnal":0또는1, "pi_sit_urge":0또는1,\n  "pi_sx_gas":0또는1, "pi_sx_mucus":0또는1, "pi_sx_liquid":0또는1, "pi_sx_solid":0또는1,\n  "pi_lk_leak":0또는1, "pi_lk_soiling":0또는1, "pi_pad":0또는1,\n  "pi_ag_dairy":0또는1, "pi_ag_fruit":0또는1, "pi_ag_food":0또는1, "pi_ag_other":0또는1,\n  "pi_ag_diarrhea":0또는1, "pi_ag_loose":0또는1, "pi_ag_cough":0또는1,\n  "pi_ag_stress":0또는1, "pi_ag_postdefec":0또는1, "pi_ag_exercise":0또는1,\n  "pi_crs_worsening":0또는1, "pi_crs_intermittent":0또는1, "pi_crs_recent_worse":0또는1,\n  "pi_tx_none":0또는1, "pi_tx_drug":0또는1, "pi_tx_bio":0또는1,\n  "pi_tx_pfe":0또는1, "pi_tx_op":0또는1, "pi_tx_electric":0또는1, "pi_tx_other":"기타치료명",\n\n  "dob":"YYYY-MM-DD", "age":숫자, "sex":"Male/Female",\n  "height":cm, "weight":kg, "bmi":값, "dexa_date":"YYYY-MM-DD",\n  "total_fat_pct":값, "total_centile":값, "total_mass_kg":값, "total_fat_g":값, "total_lean_g":값, "total_bmc_g":값, "total_fatfree_g":값,\n  "arms_fat_pct":값, "arms_mass_kg":값, "arms_fat_g":값, "arms_lean_g":값, "arms_bmc_g":값,\n  "arm_r_fat_pct":값, "arm_r_mass_kg":값, "arm_r_fat_g":값, "arm_r_lean_g":값, "arm_r_bmc_g":값,\n  "arm_l_fat_pct":값, "arm_l_mass_kg":값, "arm_l_fat_g":값, "arm_l_lean_g":값, "arm_l_bmc_g":값,\n  "legs_fat_pct":값, "legs_mass_kg":값, "legs_fat_g":값, "legs_lean_g":값, "legs_bmc_g":값,\n  "leg_r_fat_pct":값, "leg_r_mass_kg":값, "leg_r_fat_g":값, "leg_r_lean_g":값, "leg_r_bmc_g":값,\n  "leg_l_fat_pct":값, "leg_l_mass_kg":값, "leg_l_fat_g":값, "leg_l_lean_g":값, "leg_l_bmc_g":값,\n  "trunk_fat_pct":값, "trunk_mass_kg":값, "trunk_fat_g":값, "trunk_lean_g":값, "trunk_bmc_g":값,\n  "android_fat_pct":값, "android_mass_kg":값, "android_fat_g":값, "android_lean_g":값, "android_bmc_g":값,\n  "gynoid_fat_pct":값, "gynoid_mass_kg":값, "gynoid_fat_g":값, "gynoid_lean_g":값, "gynoid_bmc_g":값,\n  "ag_ratio":값, "asmi":값, "asmm":값,\n  "bmd_head":값, "bmd_arms":값, "bmd_legs":값, "bmd_trunk":값, "bmd_ribs":값, "bmd_spine":값, "bmd_pelvis":값, "bmd_total":값,\n  "ya_pct":값, "ya_tscore":값, "am_pct":값, "am_zscore":값,\n  "bmi_dxa":값, "who_class":0-3코드, "osteo_dx":0-2코드,\n  "mano_date":"YYYY-MM-DD", "sphincter_tone":1-3코드,\n  "rest_mean":값, "sq_max":값, "sus_dur":값, "sph_len":값, "hpz":값,\n  "rs_min":값, "rs_urg":값, "cv_max":값,\n  "rair":값, "rair_result":0또는1,\n  "cough_pct":값, "cough_ref":0또는1,\n  "bet":0또는1또는9, "bet_min":값,\n  "bd_rectal_pr":값, "bd_anal_pr":값,\n  "bd_rectal_result":0또는1, "bd_anal_result":0또는1또는2\n}\n==ENDPART1==\n\n==PART2: REPORT==\n(DEXA 있는 경우만. 한국어 임상 리포트.)\n[DXA Full Report]\n1. Patient Information / 2. BMD Analysis / 3. Muscle Mass / 4. Fat Analysis\n[종합 소견] / [Anorectal Manometry] (마노메트리 있는 경우)\n==ENDPART2==';
+  var PROMPT_JSON='당신은 한국 대장항문외과 변실금 코호트 연구의 CRF 데이터 입력 전문가입니다.\n아래 초진 차트(+DEXA 이미지+마노메트리 이미지)를 분석합니다.\n\n【필수 규칙】\n1. PI 체크박스(pi_sit_*, pi_sx_*, pi_lk_*, pi_pad, pi_ag_*, pi_crs_*, pi_tx_*)는 해당=1, 비해당=0으로 모두 반환. 누락 금지.\n2. opj_probiotics: 차트에 "유산균-" "유산균 안함" "유산균 없음"이면 반드시 0. "유산균+" "유산균 복용 중"이면 1.\n3. opj_cardiac: PMHx에 CVD, 심장, PCI, 부정맥, 뇌졸중, CVA, 뇌경색 등이 있으면 1.\n4. opj_onset_yr: Onset 텍스트(3YA, 10MA 등)에서 숫자만 추출하여 정수로 반환.\n5. pi_ag_food: 특정 음식(국물, 기름진 음식, 쑥떡 등) 언급 시 1.\n6. pi_ag_postdefec: "변 본 후 더 샘" "배변 후 누출" 언급 시 1.\n7. pi_ag_exercise: "걸을 때" "운동 시" "활동 시" 샌다고 언급 시 1.\n8. pi_tx_*: 이전 치료력 반드시 파악. 치료받은 적 없으면 pi_tx_none=1. 약물=pi_tx_drug=1. 전기치료=pi_tx_electric=1.\n9. pi_crs_*: 3년 이상 지속이면 pi_crs_intermittent 또는 pi_crs_worsening 판단.\n10. 반환 전 한 번 더 검토하여 누락/오류 없도록.\n없는 항목은 생략. 숫자는 단위 없이.\n\n【코드표 — 반드시 아래 숫자코드로 반환】\n- opj_pain: 유=1, 무=0\n- opj_smoking: 비흡연/-=0, 과거흡연=1, 현재흡연=2\n- opj_probiotics: 현재복용중(유산균+)=1, 복용안함/없음/유산균-/-=0, 복용중단=2 ※주의: 차트에 "유산균-"이면 반드시 0\n- opj_spinal: 없음/-=0, 압박골절=1, 척추관협착증=2, HIVD/디스크=3, 척추수술/감압술/고정술=4, 낙상/외상=5, 기타=6\n- opj_dementia: 없음/-=0, 경도인지장애/MCI/인지기능저하=1, 치매/Dementia(진단된)=2 ※주의: 차트에 "경도인지장애"는 반드시 1, "치매"는 2, 없으면 0\n- opj_prev_ar_yn: 없음/-=0, 있음=1\n- opj_prev_ar_type: 치핵수술=1, 치루수술=2, 괄약근성형=3, STARR=4, 기타=5\n- opj_hyst: 없음/-=0, 있음=1\n- opj_para: 없음/-이면 "-", 있으면 원문그대로(예:"3,VD,4.2kg"), 미혼이면 "미혼"\n- opj_dm/htn/hl/ui/menopause/cancer/cardiac/hematologic: 없음/-=0, 있음=1\n- opj_cvs: 없으면 "-", 있으면 텍스트(예:"2YA,WNL"/"3년전,폴립제거")\n- opj_constipation/diarrhea/loose: +=1, -=0\n- opj_resting_tone/opj_squeeze: decreased=1, slightly/mild decreased=2, WNL/정상=3, increased=4\n- opj_muschel: none/bad=0, fair=1, good=2, WNL/정상=3\n- opj_cvs_result: WNL/이상없음=0, 폴립제거=1, 선종=2, 암=3, 기타=4\n- pi_sit_*/pi_sx_*/pi_lk_*/pi_pad/pi_ag_*/pi_crs_*/pi_tx_*: 해당=1, 아님=0\n- who_class: 저체중=0, 정상=1, 과체중=2, 비만=3\n- osteo_dx: 정상=0, 골감소증=1, 골다공증=2\n- rair_result/cough_ref: Positive=1, Negative=0\n- bet: Normal=1, Abnormal=0, Not done=9\n- bd_rectal_result: Normal elevation=1, Insufficient=0\n- bd_anal_result: Normal relaxation=1, Incomplete=0, Paradoxical=2\n- sphincter_tone: 저하=1, 정상=2, 증가=3\n\n==PART1: JSON==\n{\n  "opj_date":"YYYY-MM-DD", "opj_cc":"CC한줄", "opj_pain":0또는1,\n\n  "opj_fisi":합계, "opj_fi_gas":0-5, "opj_fi_mucus":0-5, "opj_fi_liquid":0-5, "opj_fi_solid":0-5,\n  "opj_wexner":합계, "opj_wx_solid":0-4, "opj_wx_liquid":0-4, "opj_wx_gas":0-4, "opj_wx_pad":0-4, "opj_wx_life":0-4,\n\n  "opj_onset":"Onset텍스트", "opj_episode":"빈도", "opj_defecation":"배변빈도",\n  "opj_constipation":0또는1, "opj_diarrhea":0또는1, "opj_loose":0또는1,\n\n  "opj_spinal":0-6코드, "opj_spinal_detail":"상세", "opj_spinal_yr":년전숫자,\n  "opj_dementia":0또는1,\n  "opj_bmi_raw":"신장/체중원문",\n  "opj_smoking":0또는1또는2,\n  "opj_probiotics":0또는1또는2,\n  "opj_prev_ar_yn":0또는1, "opj_prev_ar_type":1-5코드, "opj_prev_ar_detail":"상세", "opj_prev_ar_yr":년전,\n  "opj_hyst":0또는1, "opj_hyst_type":"종류", "opj_hyst_yr":년전,\n  "opj_para":"원문또는-",\n  "opj_dm":0또는1, "opj_htn":0또는1, "opj_hl":0또는1,\n  "opj_cvs":"텍스트또는-", "opj_cvs_yr":년전,\n  "opj_ui":0또는1,\n  "opj_menopause":0또는1, "opj_cancer":0또는1, "opj_cancer_memo":"종류",\n  "opj_cardiac":0또는1, "opj_hematologic":0또는1,\n  "opj_pmhx":"Other PMHx — 질병명만 콤마 구분 (병원명/부가설명 제외. 예: HTN, HL, 자가면역간염, CVD)",\n\n  "opj_skin_irr":0또는1, "opj_patulus":0또는1, "opj_perineal":0또는1, "opj_stool_stain":0또는1,\n  "opj_pe_etc":"기타PE", "opj_feces":0또는1,\n  "opj_resting_tone":1-4코드, "opj_squeeze":1-4코드, "opj_muschel":0-3코드,\n\n  "opj_assessment":"텍스트", "opj_plan":"텍스트",\n  "opj_pi_text":"PI핵심요약",\n  "opj_raw_text":"초진차트전체원문그대로",\n\n  "pi_sit_passive":0또는1, "pi_sit_postdefec":0또는1, "pi_sit_strain":0또는1,\n  "pi_sit_nocturnal":0또는1, "pi_sit_urge":0또는1,\n  "pi_sx_gas":0또는1, "pi_sx_mucus":0또는1, "pi_sx_liquid":0또는1, "pi_sx_solid":0또는1,\n  "pi_lk_leak":0또는1, "pi_lk_soiling":0또는1, "pi_pad":0또는1,\n  "pi_ag_dairy":0또는1, "pi_ag_fruit":0또는1, "pi_ag_food":0또는1, "pi_ag_other":0또는1,\n  "pi_ag_diarrhea":0또는1, "pi_ag_loose":0또는1, "pi_ag_cough":0또는1,\n  "pi_ag_stress":0또는1, "pi_ag_postdefec":0또는1, "pi_ag_exercise":0또는1,\n  "pi_crs_worsening":0또는1, "pi_crs_intermittent":0또는1, "pi_crs_recent_worse":0또는1,\n  "pi_tx_none":0또는1, "pi_tx_drug":0또는1, "pi_tx_bio":0또는1,\n  "pi_tx_pfe":0또는1, "pi_tx_op":0또는1, "pi_tx_electric":0또는1, "pi_tx_other":"기타치료명",\n\n  "dob":"YYYY-MM-DD", "age":숫자, "sex":"Male/Female",\n  "height":cm, "weight":kg, "bmi":값, "dexa_date":"YYYY-MM-DD",\n  "total_fat_pct":값, "total_centile":값, "total_mass_kg":값, "total_fat_g":값, "total_lean_g":값, "total_bmc_g":값, "total_fatfree_g":값,\n  "arms_fat_pct":값, "arms_mass_kg":값, "arms_fat_g":값, "arms_lean_g":값, "arms_bmc_g":값,\n  "arm_r_fat_pct":값, "arm_r_mass_kg":값, "arm_r_fat_g":값, "arm_r_lean_g":값, "arm_r_bmc_g":값,\n  "arm_l_fat_pct":값, "arm_l_mass_kg":값, "arm_l_fat_g":값, "arm_l_lean_g":값, "arm_l_bmc_g":값,\n  "legs_fat_pct":값, "legs_mass_kg":값, "legs_fat_g":값, "legs_lean_g":값, "legs_bmc_g":값,\n  "leg_r_fat_pct":값, "leg_r_mass_kg":값, "leg_r_fat_g":값, "leg_r_lean_g":값, "leg_r_bmc_g":값,\n  "leg_l_fat_pct":값, "leg_l_mass_kg":값, "leg_l_fat_g":값, "leg_l_lean_g":값, "leg_l_bmc_g":값,\n  "trunk_fat_pct":값, "trunk_mass_kg":값, "trunk_fat_g":값, "trunk_lean_g":값, "trunk_bmc_g":값,\n  "android_fat_pct":값, "android_mass_kg":값, "android_fat_g":값, "android_lean_g":값, "android_bmc_g":값,\n  "gynoid_fat_pct":값, "gynoid_mass_kg":값, "gynoid_fat_g":값, "gynoid_lean_g":값, "gynoid_bmc_g":값,\n  "ag_ratio":값, "asmi":값, "asmm":값,\n  "bmd_head":값, "bmd_arms":값, "bmd_legs":값, "bmd_trunk":값, "bmd_ribs":값, "bmd_spine":값, "bmd_pelvis":값, "bmd_total":값,\n  "ya_pct":값, "ya_tscore":값, "am_pct":값, "am_zscore":값,\n  "bmi_dxa":값, "who_class":0-3코드, "osteo_dx":0-2코드,\n  "mano_date":"YYYY-MM-DD", "sphincter_tone":1-3코드,\n  "rest_mean":값, "sq_max":값, "sus_dur":값, "sph_len":값, "hpz":값,\n  "rs_min":값, "rs_urg":값, "cv_max":값,\n  "rair":값, "rair_result":0또는1,\n  "cough_pct":값, "cough_ref":0또는1,\n  "bet":0또는1또는9, "bet_min":값,\n  "bd_rectal_pr":값, "bd_anal_pr":값,\n  "bd_rectal_result":0또는1, "bd_anal_result":0또는1또는2\n}\n==ENDPART1==\n\n==PART2: REPORT==\n(DEXA 있는 경우만. 한국어 임상 리포트.)\n[DXA Full Report]\n1. Patient Information / 2. BMD Analysis / 3. Muscle Mass / 4. Fat Analysis\n[종합 소견] / [Anorectal Manometry] (마노메트리 있는 경우)\n==ENDPART2==';
 
   var cpb=document.getElementById('copy-prompt-btn');if(cpb)cpb.addEventListener('click',function(){
     navigator.clipboard.writeText(PROMPT_JSON).then(()=>showToast('✅ 프롬프트 복사 완료! Gemini에 이미지와 함께 붙여넣으세요.')).catch(()=>{
@@ -2467,7 +2529,7 @@ document.addEventListener('DOMContentLoaded',function(){
       opj_smoking: {'-':0,'비흡연':0,'과거흡연':1,'과거 흡연':1,'현재흡연':2,'현재 흡연':2,'+':2,'0':0,'1':1,'2':2},
       opj_constipation:{'+':1,'-':0},opj_diarrhea:{'+':1,'-':0},
       opj_loose:   {'+':1,'-':0,'none':0},
-      opj_dementia:{'+':1,'-':0},opj_dm:{'+':1,'-':0},
+      opj_dementia:{'0':0,'1':1,'2':2,'+':1,'-':0},opj_dm:{'+':1,'-':0},
       opj_hyst:    {'+':1,'-':0},opj_prev_ar_yn:{'+':1,'-':0},
       opj_cvs_yn:  {'+':1,'-':0},opj_para_forceps:{'+':1,'-':0},
       opj_htn:     {'+':1,'-':0,'1':1,'0':0},opj_hl:{'+':1,'-':0,'1':1,'0':0},
@@ -2624,11 +2686,12 @@ document.addEventListener('DOMContentLoaded',function(){
     // opj_prev_ar_yn "-" → 0
     if(parsed.opj_prev_ar_yn==='-')parsed.opj_prev_ar_yn='0';
     if(parsed.opj_prev_ar_yn==='+')parsed.opj_prev_ar_yn='1';
-    // opj_dementia "+/-" → 1/0
-    if(parsed.opj_dementia){
-      var dem=String(parsed.opj_dementia);
-      if(dem.startsWith('+')||/인지장애|치매|dementia/i.test(dem))parsed.opj_dementia='1';
-      else if(dem.startsWith('-')||dem==='없음'||dem==='0')parsed.opj_dementia='0';
+    // opj_dementia → 0=없음 1=경도인지장애 2=치매
+    if(parsed.opj_dementia!==undefined){
+      var dem=String(parsed.opj_dementia).trim();
+      if(/치매|dementia(?!.*mild)/i.test(dem)||dem==='2')parsed.opj_dementia='2';
+      else if(/경도인지장애|mci|mild.cognitive|인지장애|인지기능저하/i.test(dem)||dem==='1'||dem==='+')parsed.opj_dementia='1';
+      else if(dem==='-'||dem==='없음'||dem==='0'||dem==='none'||dem==='no')parsed.opj_dementia='0';
     }
     // 유산균 명시적 처리 (Gemini가 "-", "없음", "복용안함" 등으로 반환)
     if(parsed.opj_probiotics!==undefined){
@@ -2706,15 +2769,52 @@ document.addEventListener('DOMContentLoaded',function(){
           var catEl=document.getElementById('opj_pmhx_'+n+'_cat');
           var nameEl=document.getElementById('opj_pmhx_'+n+'_name');
           var yrEl=document.getElementById('opj_pmhx_'+n+'_yr');
-          if(catEl&&item.cat!==undefined)catEl.value=String(item.cat);
+          if(catEl){
+            var cv=item.cat!==undefined?String(item.cat):'';
+            // KCD 문자코드면 그대로, 숫자코드면 이름 기반 자동매핑
+            if(/^[A-Z]$/.test(cv)){catEl.value=cv;}
+            else if(item.name){catEl.value=autoKcdCat(item.name);}
+          }
           if(nameEl&&item.name)nameEl.value=item.name;
           if(yrEl&&item.yr)yrEl.value=item.yr;
           count++;
         });
       }
     }
+    // 기존 저장된 opj_htn/hl/cardiac/hematologic 값 → Other PMHx 행으로 복원
+    var legacyMap=[
+      {id:'opj_htn',cat:'I',name:'고혈압(HTN)',yrId:'opj_htn_yr'},
+      {id:'opj_hl',cat:'E',name:'이상지질혈증(HL)',yrId:'opj_hl_yr'},
+      {id:'opj_cardiac',cat:'I',name:'심혈관질환',yrId:'opj_cardiac_yr'},
+      {id:'opj_hematologic',cat:'D',name:'혈액질환',yrId:'opj_hematologic_yr'}
+    ];
+    legacyMap.forEach(function(m){
+      if(String(r[m.id])==='1'){
+        // 이미 pmhx_list에 있는지 확인
+        var alreadyIn=false;
+        var rows=document.querySelectorAll('#opj-pmhx-rows .pmhx-row');
+        rows.forEach(function(row,i){
+          var nm=document.getElementById('opj_pmhx_'+i+'_name');
+          if(nm&&nm.value.toLowerCase().indexOf(m.name.toLowerCase().split('(')[0].toLowerCase().trim())>=0) alreadyIn=true;
+        });
+        if(!alreadyIn){
+          addPmhxRow();
+          var n2=document.querySelectorAll('#opj-pmhx-rows .pmhx-row').length-1;
+          var catEl2=document.getElementById('opj_pmhx_'+n2+'_cat');
+          var nmEl2=document.getElementById('opj_pmhx_'+n2+'_name');
+          var yrEl2=document.getElementById('opj_pmhx_'+n2+'_yr');
+          if(catEl2)catEl2.value=m.cat;
+          if(nmEl2)nmEl2.value=m.name;
+          if(yrEl2&&r[m.yrId])yrEl2.value=r[m.yrId];
+          // 히든 필드도 설정
+          var hEl=document.getElementById(m.id);
+          if(hEl)hEl.value='1';
+        }
+      }
+    });
+
     // opj_pmhx 텍스트로 왔을 때 → 쉼표/세미콜론으로 분리해서 각각 행으로 추가
-    else if(parsed.opj_pmhx&&typeof parsed.opj_pmhx==='string'&&parsed.opj_pmhx.trim()){
+    if(!parsed.opj_pmhx_list&&parsed.opj_pmhx&&typeof parsed.opj_pmhx==='string'&&parsed.opj_pmhx.trim()){
       var pmhxContainer=document.getElementById('opj-pmhx-rows');
       if(pmhxContainer){
         pmhxContainer.innerHTML='';
@@ -2745,6 +2845,34 @@ document.addEventListener('DOMContentLoaded',function(){
           '심장':7,'뇌':8,'치매':9,'파킨슨':10,'갑상선':11,'호흡':12,'폐':12,
           '신장':13,'비뇨':13,'이비':14,'귀':14,'근골':15,'관절':15,'저혈압':7
         };
+        // KCD 자동 계통 분류
+        function autoKcdCat(name){
+          var n=name.toLowerCase();
+          if(/htn|고혈압/.test(n))return 'I';
+          if(/hl|이상지질|고지혈/.test(n))return 'E';
+          if(/심부전|협심증|심근경색|부정맥|판막|pci|심혈관|cvd/.test(n))return 'I';
+          if(/뇌졸중|cva|뇌경색|뇌출혈|tia|중풍/.test(n))return 'I';
+          if(/당뇨|dm|혈당/.test(n))return 'E';
+          if(/갑상선|갑상샘/.test(n))return 'E';
+          if(/비만|대사증후군/.test(n))return 'E';
+          if(/우울|불안|조현|정신|수면장애|불면/.test(n))return 'F';
+          if(/치매|알츠하이머|인지장애/.test(n))return 'G';
+          if(/파킨슨/.test(n))return 'G';
+          if(/뇌전증|간질/.test(n))return 'G';
+          if(/뇌병|신경병/.test(n))return 'G';
+          if(/암|악성|종양|carcinoma|cancer|림프종|백혈병|골수종/.test(n))return 'C';
+          if(/빈혈|혈소판|혈우병|혈액질환/.test(n))return 'D';
+          if(/자가면역|루푸스|sle|류마티스|sjogren/.test(n))return 'D';
+          if(/천식|copd|폐렴|결핵|폐기종|호흡기/.test(n))return 'J';
+          if(/위염|위궤양|위암|간경화|간염|담석|췌장/.test(n))return 'K';
+          if(/피부|건선|아토피|습진/.test(n))return 'L';
+          if(/관절염|골다공증|척추|디스크|협착증|골절|근골격/.test(n))return 'M';
+          if(/신부전|신장|신결석|방광|요로|신우/.test(n))return 'N';
+          if(/백내장|녹내장|망막|시력/.test(n))return 'H';
+          if(/난청|이명|중이염|청력/.test(n))return 'H';
+          if(/결핵|감염|hiv|aids/.test(n))return 'A';
+          return 'Z';
+        }
         pmhxItems.forEach(function(item){
           // 질병명 정제: "병원명-질병명으로 약 드시고 계심" → "질병명"
           var cleanItem=item.trim();
@@ -2766,13 +2894,9 @@ document.addEventListener('DOMContentLoaded',function(){
           // 년도 자동 계산
           var calcYr=parseYrText(item);
           if(calcYr!==''&&yrEl)yrEl.value=calcYr;
-          // 계통 자동 매핑
-          var catCode=99;
-          var itemLower=cleanItem.toLowerCase();
-          Object.keys(catKeyMap).forEach(function(k){
-            if(itemLower.includes(k))catCode=catKeyMap[k];
-          });
-          if(catEl)catEl.value=String(catCode);
+          // KCD 계통 자동 매핑
+          var kcdCode=autoKcdCat(cleanItem);
+          if(catEl)catEl.value=kcdCode;
           count++;
         });
       }
