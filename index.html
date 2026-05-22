@@ -1254,7 +1254,7 @@ function addPmhxRow(){
     +'<option value="15">15. 근골격질환</option>'
     +'<option value="99">99. 기타</option>'
     +'</select>'
-    +'<input type="text" class="pmhx-name" id="opj_pmhx_'+n+'_name" placeholder="상세 질환명" oninput="mOpj(this)">'
+    +'<input type="text" class="pmhx-name" id="opj_pmhx_'+n+'_name" placeholder="질환명 입력 → 계통 자동" oninput="mOpj(this);autoSetPmhxCat(this)">'
     +'<input type="number" class="pmhx-yr" id="opj_pmhx_'+n+'_yr" placeholder="몇" min="0" oninput="mOpj(this)">'
     +'<span style="font-size:11px;color:var(--text3);">년 전</span>'
     +'<button class="pmhx-del" onclick="removeRow(this)">×</button>';
@@ -1268,7 +1268,7 @@ function addRow(containerId, type){
   row.className='pmhx-row';
   row.setAttribute('data-type',type);
   if(type==='pmhx'){
-    row.innerHTML='<select class="pmhx-cat" id="opj_pmhx_'+n+'_cat" onchange="mOpj(this);syncPmhxHidden(this)"><option value="">계통(KCD)</option><option value="I">I. 순환기 (고혈압·심장·뇌혈관)</option><option value="E">E. 내분비/대사 (당뇨·갑상선·이상지질)</option><option value="C">C. 신생물 (악성종양·암)</option><option value="D">D. 혈액/면역 (빈혈·혈액질환·자가면역)</option><option value="F">F. 정신/행동 (우울·불안·조현병)</option><option value="G">G. 신경계 (뇌졸중·파킨슨·간질)</option><option value="J">J. 호흡기 (천식·COPD·결핵)</option><option value="K">K. 소화기 (위염·간질환·담석)</option><option value="L">L. 피부 (피부질환)</option><option value="M">M. 근골격 (관절염·골다공증·척추)</option><option value="N">N. 비뇨생식기 (신장·요로)</option><option value="H">H. 감각기 (눈·귀·이비인후)</option><option value="A">A/B. 감염성질환</option><option value="Z">Z. 기타</option></select><input type="text" class="pmhx-name" id="opj_pmhx_'+n+'_name" placeholder="질환명 직접 입력" oninput="mOpj(this);syncPmhxHidden(this)"><input type="number" class="pmhx-yr" id="opj_pmhx_'+n+'_yr" placeholder="몇 년 전" min="0" oninput="mOpj(this)"><span style="font-size:11px;color:var(--text3);">년 전</span><button class="pmhx-del" onclick="removeRow(this)">×</button>';
+    row.innerHTML='<select class="pmhx-cat" id="opj_pmhx_'+n+'_cat" onchange="mOpj(this);syncPmhxHidden(this)"><option value="">계통(KCD)</option><option value="I">I. 순환기 (고혈압·심장·뇌혈관)</option><option value="E">E. 내분비/대사 (당뇨·갑상선·이상지질)</option><option value="C">C. 신생물 (악성종양·암)</option><option value="D">D. 혈액/면역 (빈혈·혈액질환·자가면역)</option><option value="F">F. 정신/행동 (우울·불안·조현병)</option><option value="G">G. 신경계 (뇌졸중·파킨슨·간질)</option><option value="J">J. 호흡기 (천식·COPD·결핵)</option><option value="K">K. 소화기 (위염·간질환·담석)</option><option value="L">L. 피부 (피부질환)</option><option value="M">M. 근골격 (관절염·골다공증·척추)</option><option value="N">N. 비뇨생식기 (신장·요로)</option><option value="H">H. 감각기 (눈·귀·이비인후)</option><option value="A">A/B. 감염성질환</option><option value="Z">Z. 기타</option></select><input type="text" class="pmhx-name" id="opj_pmhx_'+n+'_name" placeholder="질환명 입력 → 계통 자동" oninput="mOpj(this);autoSetPmhxCat(this)"><input type="number" class="pmhx-yr" id="opj_pmhx_'+n+'_yr" placeholder="몇 년 전" min="0" oninput="mOpj(this)"><span style="font-size:11px;color:var(--text3);">년 전</span><button class="pmhx-del" onclick="removeRow(this)">×</button>';
   } else if(type==='ar'){
     row.innerHTML='<select class="pmhx-sel" id="opj_ar_'+n+'_yn" onchange="mOpj(this)"><option value="">선택</option><option>-</option><option>+</option></select><input type="text" class="pmhx-name" id="opj_ar_'+n+'_type" placeholder="수술 종류" oninput="mOpj(this)"><input type="number" class="pmhx-yr" id="opj_ar_'+n+'_yr" placeholder="몇 년 전" min="0" oninput="mOpj(this)"><span style="font-size:11px;color:var(--text3);">년 전</span><button class="pmhx-del" onclick="removeRow(this)">×</button>';
   } else if(type==='hyst'){
@@ -1324,28 +1324,185 @@ function loadSurgeryRows(jsonStr){
     if(inputs[3])inputs[3].value=item.memo||'';
   });
 }
-// ===== KCD 자동 계통 분류 (전역) =====
+// ===== KCD 자동 계통 분류 (전역) — 한국표준질병사인분류 KCD =====
 function autoKcdCat(name){
-  var n=(name||'').toLowerCase();
-  if(/htn|고혈압/.test(n))return 'I';
-  if(/\bhl\b|이상지질|고지혈/.test(n))return 'E';
-  if(/심부전|협심증|심근경색|부정맥|판막|pci|심혈관|cvd/.test(n))return 'I';
-  if(/뇌졸중|cva|뇌경색|뇌출혈|tia|중풍/.test(n))return 'I';
-  if(/당뇨|\bdm\b|혈당/.test(n))return 'E';
-  if(/갑상선|갑상샘/.test(n))return 'E';
-  if(/비만|대사증후군/.test(n))return 'E';
-  if(/우울|불안|조현|정신|수면장애|불면/.test(n))return 'F';
-  if(/치매|알츠하이머|인지장애/.test(n))return 'G';
-  if(/파킨슨|간질|뇌전증|신경병/.test(n))return 'G';
-  if(/\b암\b|악성|종양|carcinoma|cancer|림프종|백혈병|골수종/.test(n))return 'C';
-  if(/빈혈|혈소판|혈우병|혈액질환|자가면역|루푸스|류마티스/.test(n))return 'D';
-  if(/천식|copd|폐렴|결핵|폐기종|호흡기/.test(n))return 'J';
-  if(/위염|위궤양|간경화|간염|담석|췌장/.test(n))return 'K';
-  if(/피부|건선|아토피|습진/.test(n))return 'L';
-  if(/관절염|골다공증|척추|디스크|협착증|골절|근골격/.test(n))return 'M';
-  if(/신부전|신장|신결석|방광|요로/.test(n))return 'N';
-  if(/백내장|녹내장|망막|시력|난청|이명|중이염/.test(n))return 'H';
-  if(/결핵|감염|hiv|aids/.test(n))return 'A';
+  var n=(name||'').toLowerCase().replace(/\s+/g,'');
+
+  // ── I. 순환기계 ──────────────────────────────────────────
+  if(/고혈압|htn|hypertension/.test(n))return 'I';
+  if(/이상지질혈증|고지혈증|\bhl\b|hyperlipidemia|dyslipidemia/.test(n))return 'I';
+  if(/심부전|heartfailure|심장기능부전/.test(n))return 'I';
+  if(/협심증|angina|불안정협심증/.test(n))return 'I';
+  if(/심근경색|myocardialinfarction|\bmi\b|\bami\b|\bnstemi\b|\bstemi\b/.test(n))return 'I';
+  if(/부정맥|arrhythmia|심방세동|\baf\b|심방조동|심실세동|빈맥|서맥/.test(n))return 'I';
+  if(/심장판막|판막질환|판막협착|판막역류|대동맥판막|승모판막/.test(n))return 'I';
+  if(/심근병증|심근염|cardiomyopathy|pericarditis|심낭염/.test(n))return 'I';
+  if(/뇌졸중|stroke|\bcva\b|뇌경색|cerebral.infarction|뇌혈전/.test(n))return 'I';
+  if(/뇌출혈|intracerebralhemorrhage|\bich\b|지주막하출혈|\bsah\b/.test(n))return 'I';
+  if(/일과성뇌허혈|\btia\b|transient.ischemic/.test(n))return 'I';
+  if(/\bpci\b|\bcabg\b|관상동맥|coronary|스텐트|stent/.test(n))return 'I';
+  if(/대동맥류|aortic.aneurysm|대동맥박리|aortic.dissection/.test(n))return 'I';
+  if(/심혈관|cardiovascular|\bcvd\b/.test(n))return 'I';
+  if(/말초혈관|peripheral.vascular|\bpad\b|동맥경화|arteriosclerosis/.test(n))return 'I';
+  if(/정맥류|varicose|심부정맥혈전|\bdvt\b|혈전증/.test(n))return 'I';
+  if(/폐색전증|pulmonaryembolism|\bpe\b/.test(n))return 'I';
+  if(/중풍/.test(n))return 'I';
+
+  // ── E. 내분비·영양·대사 ──────────────────────────────────
+  if(/당뇨|\bdm\b|\bt1dm\b|\bt2dm\b|diabetes|인슐린저항|혈당/.test(n))return 'E';
+  if(/갑상선기능항진|hyperthyroidism|그레이브스|graves/.test(n))return 'E';
+  if(/갑상선기능저하|hypothyroidism|하시모토/.test(n))return 'E';
+  if(/갑상선|thyroid/.test(n))return 'E';
+  if(/갑상샘/.test(n))return 'E';
+  if(/부갑상선|hyperparathyroidism|parathyroid/.test(n))return 'E';
+  if(/부신기능부전|애디슨|addisonsdisease|쿠싱|cushingsyndrome/.test(n))return 'E';
+  if(/\bdm\b이상지질|이상지질혈증|고지혈/.test(n))return 'E';
+  if(/비만|obesity/.test(n))return 'E';
+  if(/대사증후군|metabolicsyndrome/.test(n))return 'E';
+  if(/고요산혈증|통풍|gout|uricacid/.test(n))return 'E';
+  if(/저나트륨|저칼륨|전해질이상|electrolyte/.test(n))return 'E';
+  if(/골다공증|osteoporosis/.test(n))return 'E';
+
+  // ── C. 신생물(악성종양) ──────────────────────────────────
+  if(/폐암|lungcancer|폐선암|폐편평세포암|소세포폐암/.test(n))return 'C';
+  if(/위암|gastriccancer|위선암/.test(n))return 'C';
+  if(/대장암|colorectalcancer|결장암|직장암|colon.cancer/.test(n))return 'C';
+  if(/유방암|breastcancer/.test(n))return 'C';
+  if(/자궁경부암|자궁내막암|자궁암|cervical.cancer|endometrial.cancer/.test(n))return 'C';
+  if(/난소암|ovarian.cancer/.test(n))return 'C';
+  if(/간암|hepatocellular|\bhcc\b/.test(n))return 'C';
+  if(/췌장암|pancreaticcancer/.test(n))return 'C';
+  if(/갑상선암|thyroid.cancer/.test(n))return 'C';
+  if(/전립선암|prostate.cancer/.test(n))return 'C';
+  if(/방광암|bladder.cancer/.test(n))return 'C';
+  if(/신장암|renal.cell|\brcc\b/.test(n))return 'C';
+  if(/림프종|lymphoma|호지킨|비호지킨/.test(n))return 'C';
+  if(/백혈병|leukemia|\ball\b|\baml\b|\bcll\b|\bcml\b/.test(n))return 'C';
+  if(/골수종|multiplemyeloma/.test(n))return 'C';
+  if(/악성|malignant|carcinoma|\bcancer\b|종양|neoplasm/.test(n))return 'C';
+  if(/\b암\b/.test(n))return 'C';
+
+  // ── D. 혈액·조혈기관·면역 ────────────────────────────────
+  if(/빈혈|anemia|철결핍빈혈|거대적아구성빈혈/.test(n))return 'D';
+  if(/혈소판감소증|thrombocytopenia|\bitp\b/.test(n))return 'D';
+  if(/혈우병|hemophilia/.test(n))return 'D';
+  if(/혈액질환|hematologicdisease/.test(n))return 'D';
+  if(/루푸스|\bsle\b|lupus/.test(n))return 'D';
+  if(/류마티스관절염|rheumatoidarthritis|\bra\b/.test(n))return 'D';
+  if(/쇼그렌|sjogren/.test(n))return 'D';
+  if(/베체트|behcet/.test(n))return 'D';
+  if(/혈관염|vasculitis/.test(n))return 'D';
+  if(/다발성근염|피부근염|polymyositis|dermatomyositis/.test(n))return 'D';
+  if(/경피증|피부경화증|scleroderma/.test(n))return 'D';
+  if(/자가면역간염|autoimmune.hepatitis/.test(n))return 'D';
+  if(/자가면역|autoimmune/.test(n))return 'D';
+  if(/\bjak\b|골수섬유증|진성다혈구증|본태혈소판증/.test(n))return 'D';
+
+  // ── F. 정신·행동 ─────────────────────────────────────────
+  if(/우울증|우울장애|depression|\bmdd\b/.test(n))return 'F';
+  if(/불안장애|anxiety|범불안|공황장애|panicdisor/.test(n))return 'F';
+  if(/조현병|schizophrenia/.test(n))return 'F';
+  if(/양극성장애|조울증|bipolar/.test(n))return 'F';
+  if(/강박장애|\bocd\b|obsessive/.test(n))return 'F';
+  if(/외상후스트레스|\bptsd\b|posttraumatic/.test(n))return 'F';
+  if(/섭식장애|anorexia|bulimia/.test(n))return 'F';
+  if(/알코올의존|알코올남용|alcohol.use/.test(n))return 'F';
+  if(/수면장애|불면증|insomnia|수면무호흡/.test(n))return 'F';
+  if(/정신건강|정신과|psychiatric/.test(n))return 'F';
+
+  // ── G. 신경계 ────────────────────────────────────────────
+  if(/치매|알츠하이머|alzheimer|dementia/.test(n))return 'G';
+  if(/경도인지장애|\bmci\b|mild.cognitive/.test(n))return 'G';
+  if(/파킨슨|parkinson/.test(n))return 'G';
+  if(/뇌전증|간질|epilepsy|seizure/.test(n))return 'G';
+  if(/다발성경화증|\bms\b|multiple.sclerosis/.test(n))return 'G';
+  if(/\bals\b|루게릭|amyotrophic/.test(n))return 'G';
+  if(/말초신경병증|peripheral.neuropathy/.test(n))return 'G';
+  if(/자율신경|autonomic.neuropathy/.test(n))return 'G';
+  if(/두통|편두통|migraine|headache/.test(n))return 'G';
+  if(/어지럼증|현기증|vertigo|dizziness/.test(n))return 'G';
+  if(/수두증|hydrocephalus/.test(n))return 'G';
+  if(/뇌종양|brain.tumor/.test(n))return 'G';
+  if(/신경병|neuropathy|신경손상/.test(n))return 'G';
+
+  // ── J. 호흡기 ────────────────────────────────────────────
+  if(/천식|asthma/.test(n))return 'J';
+  if(/\bcopd\b|만성폐쇄성폐질환|폐기종|만성기관지염/.test(n))return 'J';
+  if(/폐렴|pneumonia/.test(n))return 'J';
+  if(/결핵|\btb\b|tuberculosis/.test(n))return 'J';
+  if(/폐섬유증|interstitiallungdisease|\bild\b/.test(n))return 'J';
+  if(/기관지확장증|bronchiectasis/.test(n))return 'J';
+  if(/폐고혈압|pulmonaryhypertension/.test(n))return 'J';
+  if(/폐색전|폐혈전/.test(n))return 'J';
+  if(/수면무호흡|\bosa\b|sleepapnea/.test(n))return 'J';
+  if(/호흡기/.test(n))return 'J';
+
+  // ── K. 소화기 ────────────────────────────────────────────
+  if(/위염|gastritis/.test(n))return 'K';
+  if(/위궤양|gastricul|소화성궤양|pepticul/.test(n))return 'K';
+  if(/역류성식도염|\bgerd\b|위식도역류/.test(n))return 'K';
+  if(/과민성대장|\bibs\b|irritablebowel/.test(n))return 'K';
+  if(/크론병|크론|\bcrohns\b|crohn/.test(n))return 'K';
+  if(/궤양성대장염|ulcerativecolitis|\buc\b/.test(n))return 'K';
+  if(/염증성장질환|\bibd\b|inflammatory.bowel/.test(n))return 'K';
+  if(/간경화|간경변|cirrhosis/.test(n))return 'K';
+  if(/간염|hepatitis|\bhbv\b|\bhcv\b/.test(n))return 'K';
+  if(/담석|gallstone|담낭염|cholecystitis|담낭/.test(n))return 'K';
+  if(/췌장염|pancreatitis/.test(n))return 'K';
+  if(/셀리악|celiac/.test(n))return 'K';
+  if(/장폐색|ileus|소장폐색/.test(n))return 'K';
+  if(/복막염|peritonitis/.test(n))return 'K';
+
+  // ── L. 피부·피하조직 ─────────────────────────────────────
+  if(/건선|psoriasis/.test(n))return 'L';
+  if(/아토피|atopic/.test(n))return 'L';
+  if(/습진|eczema/.test(n))return 'L';
+  if(/두드러기|urticaria/.test(n))return 'L';
+  if(/욕창|presureul|decubitus/.test(n))return 'L';
+  if(/피부/.test(n))return 'L';
+
+  // ── M. 근육골격·결합조직 ─────────────────────────────────
+  if(/척추관협착증|spinal.stenosis/.test(n))return 'M';
+  if(/추간판탈출|디스크|herniated.disc|\bhivd\b/.test(n))return 'M';
+  if(/압박골절|vertebral.fracture/.test(n))return 'M';
+  if(/강직성척추염|ankylosing.spondylitis|\bas\b/.test(n))return 'M';
+  if(/류마티스관절염|\bra\b/.test(n))return 'M';
+  if(/골관절염|osteoarthritis|퇴행성관절염/.test(n))return 'M';
+  if(/섬유근육통|fibromyalgia/.test(n))return 'M';
+  if(/근육병증|myopathy|근디스트로피/.test(n))return 'M';
+  if(/골절|fracture/.test(n))return 'M';
+  if(/관절/.test(n))return 'M';
+  if(/척추/.test(n))return 'M';
+  if(/근골격/.test(n))return 'M';
+
+  // ── N. 비뇨생식기 ───────────────────────────────────────
+  if(/만성신장질환|\bckd\b|신부전|chronic.kidney/.test(n))return 'N';
+  if(/신결석|kidney.stone|요로결석|urolithiasis/.test(n))return 'N';
+  if(/방광염|cystitis/.test(n))return 'N';
+  if(/요로감염|\buti\b|urinarytract/.test(n))return 'N';
+  if(/전립선비대증|\bbph\b|prostatichyperplasia/.test(n))return 'N';
+  if(/신장이식|kidney.transplant/.test(n))return 'N';
+  if(/투석|hemodialysis|dialysis/.test(n))return 'N';
+  if(/사구체신염|glomerulonephritis|신증후군/.test(n))return 'N';
+  if(/다낭신|polycystic.kidney|\bpkd\b/.test(n))return 'N';
+
+  // ── H. 눈·귀 ────────────────────────────────────────────
+  if(/백내장|cataract/.test(n))return 'H';
+  if(/녹내장|glaucoma/.test(n))return 'H';
+  if(/황반변성|maculardegeneration|\bamd\b/.test(n))return 'H';
+  if(/당뇨망막|diabeticretinopathy|망막/.test(n))return 'H';
+  if(/시력|vision|안과/.test(n))return 'H';
+  if(/난청|hearingloss|청력/.test(n))return 'H';
+  if(/이명|tinnitus/.test(n))return 'H';
+  if(/중이염|otitismedia/.test(n))return 'H';
+  if(/이비인후/.test(n))return 'H';
+
+  // ── A/B. 감염성 ─────────────────────────────────────────
+  if(/결핵|tuberculosis|\btb\b/.test(n))return 'A';
+  if(/\bhiv\b|에이즈|\baids\b/.test(n))return 'A';
+  if(/매독|syphilis/.test(n))return 'A';
+  if(/\bhbv\b|b형간염/.test(n))return 'A';
+
   return 'Z';
 }
 
@@ -1379,6 +1536,21 @@ function addQuickPmhx(cat, name, hiddenId){
 // PMHx 행의 질환명 보고 히든필드 동기화
 function syncPmhxHidden(el){
   setTimeout(syncAllPmhxHidden, 50);
+}
+// 질환명 입력 → KCD 계통 자동 선택
+function autoSetPmhxCat(nameEl){
+  if(!nameEl)return;
+  var id=nameEl.id; // e.g. opj_pmhx_2_name
+  var m=id.match(/opj_pmhx_(\d+)_name/);
+  if(!m)return;
+  var n=m[1];
+  var catEl=document.getElementById('opj_pmhx_'+n+'_cat');
+  if(!catEl)return;
+  // 사용자가 이미 직접 선택한 경우 덮어쓰지 않음 (빈칸일 때만 자동)
+  // → 항상 자동 업데이트 (사용자가 원하면 나중에 수동 변경 가능)
+  var kcd=autoKcdCat(nameEl.value||'');
+  catEl.value=kcd;
+  syncAllPmhxHidden();
 }
 function syncAllPmhxHidden(){
   // 초기화
