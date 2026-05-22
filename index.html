@@ -329,6 +329,11 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
       <div class="opj-line">
         <div class="field" style="width:200px"><label>Episode</label><input type="text" id="opj_episode" placeholder="예: 3/m, 2/w" oninput="mOpj(this)"></div>
       </div>
+      <!-- 패드 (+/-) — 위치 3 -->
+      <div class="opj-line">
+        <div class="field" style="width:140px"><label>패드 사용 <span style="font-weight:400;color:var(--text3);">(+/-)</span></label><select id="pi_pad_sel" onchange="document.getElementById('pi_pad_chk').checked=this.value==='1';mOpj(this)"><option value="">선택</option><option value="1">+ (사용)</option><option value="0">- (미사용)</option></select></div>
+        <input type="hidden" id="pi_pad_sel_data">
+      </div>
       <!-- Constipation / Diarrhea -->
       <div class="opj-line">
         <div class="field" style="width:140px"><label>Constipation</label><select id="opj_constipation" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
@@ -1319,6 +1324,39 @@ function loadSurgeryRows(jsonStr){
     if(inputs[3])inputs[3].value=item.memo||'';
   });
 }
+// ===== KCD 자동 계통 분류 (전역) =====
+function autoKcdCat(name){
+  var n=(name||'').toLowerCase();
+  if(/htn|고혈압/.test(n))return 'I';
+  if(/\bhl\b|이상지질|고지혈/.test(n))return 'E';
+  if(/심부전|협심증|심근경색|부정맥|판막|pci|심혈관|cvd/.test(n))return 'I';
+  if(/뇌졸중|cva|뇌경색|뇌출혈|tia|중풍/.test(n))return 'I';
+  if(/당뇨|\bdm\b|혈당/.test(n))return 'E';
+  if(/갑상선|갑상샘/.test(n))return 'E';
+  if(/비만|대사증후군/.test(n))return 'E';
+  if(/우울|불안|조현|정신|수면장애|불면/.test(n))return 'F';
+  if(/치매|알츠하이머|인지장애/.test(n))return 'G';
+  if(/파킨슨|간질|뇌전증|신경병/.test(n))return 'G';
+  if(/\b암\b|악성|종양|carcinoma|cancer|림프종|백혈병|골수종/.test(n))return 'C';
+  if(/빈혈|혈소판|혈우병|혈액질환|자가면역|루푸스|류마티스/.test(n))return 'D';
+  if(/천식|copd|폐렴|결핵|폐기종|호흡기/.test(n))return 'J';
+  if(/위염|위궤양|간경화|간염|담석|췌장/.test(n))return 'K';
+  if(/피부|건선|아토피|습진/.test(n))return 'L';
+  if(/관절염|골다공증|척추|디스크|협착증|골절|근골격/.test(n))return 'M';
+  if(/신부전|신장|신결석|방광|요로/.test(n))return 'N';
+  if(/백내장|녹내장|망막|시력|난청|이명|중이염/.test(n))return 'H';
+  if(/결핵|감염|hiv|aids/.test(n))return 'A';
+  return 'Z';
+}
+
+// pi_pad_sel 변경 시 pi_pad 체크박스 동기화
+document.addEventListener('change', function(e){
+  if(e.target&&e.target.id==='pi_pad_sel'){
+    var cb=document.getElementById('pi_pad_chk')||document.querySelector('input[data-id="pi_pad"]');
+    if(cb)cb.checked=e.target.value==='1';
+  }
+});
+
 function removeRow(btn){var row=btn.closest('.pmhx-row');if(row)row.remove();syncAllPmhxHidden();}
 
 // 빠른입력: HTN/HL/심혈관/혈액 버튼 클릭 시
@@ -1531,6 +1569,9 @@ function loadRecord(idx){
   if(typeof loadSurgeryRows==='function')loadSurgeryRows(r.opj_surgery_json||'[]');
   // 흡연 상세 토글 복원
   if(typeof toggleSmokingDetail==='function')toggleSmokingDetail(String(r.opj_smoking||''));
+  // pi_pad → pi_pad_sel 연동
+  var padSel=document.getElementById('pi_pad_sel');
+  if(padSel){padSel.value=(r.pi_pad===1||r.pi_pad===true||r.pi_pad==='1')?'1':'0';}
   updateCompletion();calcASMM();
   switchMain('form');
   switchTab(0);
@@ -2845,34 +2886,6 @@ document.addEventListener('DOMContentLoaded',function(){
           '심장':7,'뇌':8,'치매':9,'파킨슨':10,'갑상선':11,'호흡':12,'폐':12,
           '신장':13,'비뇨':13,'이비':14,'귀':14,'근골':15,'관절':15,'저혈압':7
         };
-        // KCD 자동 계통 분류
-        function autoKcdCat(name){
-          var n=name.toLowerCase();
-          if(/htn|고혈압/.test(n))return 'I';
-          if(/hl|이상지질|고지혈/.test(n))return 'E';
-          if(/심부전|협심증|심근경색|부정맥|판막|pci|심혈관|cvd/.test(n))return 'I';
-          if(/뇌졸중|cva|뇌경색|뇌출혈|tia|중풍/.test(n))return 'I';
-          if(/당뇨|dm|혈당/.test(n))return 'E';
-          if(/갑상선|갑상샘/.test(n))return 'E';
-          if(/비만|대사증후군/.test(n))return 'E';
-          if(/우울|불안|조현|정신|수면장애|불면/.test(n))return 'F';
-          if(/치매|알츠하이머|인지장애/.test(n))return 'G';
-          if(/파킨슨/.test(n))return 'G';
-          if(/뇌전증|간질/.test(n))return 'G';
-          if(/뇌병|신경병/.test(n))return 'G';
-          if(/암|악성|종양|carcinoma|cancer|림프종|백혈병|골수종/.test(n))return 'C';
-          if(/빈혈|혈소판|혈우병|혈액질환/.test(n))return 'D';
-          if(/자가면역|루푸스|sle|류마티스|sjogren/.test(n))return 'D';
-          if(/천식|copd|폐렴|결핵|폐기종|호흡기/.test(n))return 'J';
-          if(/위염|위궤양|위암|간경화|간염|담석|췌장/.test(n))return 'K';
-          if(/피부|건선|아토피|습진/.test(n))return 'L';
-          if(/관절염|골다공증|척추|디스크|협착증|골절|근골격/.test(n))return 'M';
-          if(/신부전|신장|신결석|방광|요로|신우/.test(n))return 'N';
-          if(/백내장|녹내장|망막|시력/.test(n))return 'H';
-          if(/난청|이명|중이염|청력/.test(n))return 'H';
-          if(/결핵|감염|hiv|aids/.test(n))return 'A';
-          return 'Z';
-        }
         pmhxItems.forEach(function(item){
           // 질병명 정제: "병원명-질병명으로 약 드시고 계심" → "질병명"
           var cleanItem=item.trim();
