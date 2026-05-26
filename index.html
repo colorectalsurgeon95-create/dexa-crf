@@ -292,6 +292,24 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
         </div>
       </div>
 
+      <!-- BSS — 자유기술문 영역 -->
+      <div class="opj-line">
+        <div class="field" style="width:220px">
+          <label>BSS <span style="font-weight:400;color:var(--text3);">(Bristol Stool Scale)</span></label>
+          <select id="opj_bss" onchange="mOpj(this)">
+            <option value="">선택</option>
+            <option value="1">1 – 단단한 덩어리 (토끼변)</option>
+            <option value="2">2 – 울퉁불퉁한 소시지형</option>
+            <option value="3">3 – 표면에 금이 간 소시지형</option>
+            <option value="4">4 – 부드러운 소시지/뱀형 (정상)</option>
+            <option value="5">5 – 부드럽고 가장자리 뚜렷한 덩어리</option>
+            <option value="6">6 – 거칠고 흐물한 조각</option>
+            <option value="7">7 – 물변 (고형 없음)</option>
+          </select>
+        </div>
+        <div class="field" style="width:130px"><label>BSS 범위</label><input type="text" id="opj_bss_range" placeholder="예: 3-4" oninput="mOpj(this)"></div>
+      </div>
+
       <!-- FISI -->
       <div class="opj-line">
         <div style="background:var(--bg2);border-radius:var(--radius);padding:10px 12px;border:0.5px solid var(--border);flex:1">
@@ -348,24 +366,6 @@ body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg3);color
       <div class="opj-line">
         <div class="field" style="width:140px"><label>Loose stool</label><select id="opj_loose" onchange="mOpj(this)"><option value="">선택</option><option value="1">+ (있음)</option><option value="0">- (없음)</option><option value="9">모름</option></select></div>
       </div>
-      <!-- BSS -->
-      <div class="opj-line">
-        <div class="field" style="width:200px">
-          <label>BSS <span style="font-weight:400;color:var(--text3);">(Bristol Stool Scale)</span></label>
-          <select id="opj_bss" onchange="mOpj(this)">
-            <option value="">선택</option>
-            <option value="1">1 – 단단한 덩어리 (토끼변)</option>
-            <option value="2">2 – 울퉁불퉁한 소시지형</option>
-            <option value="3">3 – 표면에 금이 간 소시지형</option>
-            <option value="4">4 – 부드러운 소시지/뱀형 (정상)</option>
-            <option value="5">5 – 부드럽고 가장자리 뚜렷한 덩어리</option>
-            <option value="6">6 – 거칠고 흐물한 조각</option>
-            <option value="7">7 – 물변 (고형 없음)</option>
-          </select>
-        </div>
-        <div class="field" style="width:150px"><label>BSS 범위 (예: 3-4)</label><input type="text" id="opj_bss_range" placeholder="예: 3-4" oninput="mOpj(this)"></div>
-      </div>
-
       <div class="opj-divider">과거력</div>
 
       <!-- PMHx 블록 카드 -->
@@ -1534,6 +1534,24 @@ function addQuickPmhx(cat, name, hiddenId){
 function syncPmhxHidden(el){
   setTimeout(syncAllPmhxHidden, 50);
 }
+// 모든 PMHx 행의 카테고리 일괄 재동기화 (로드 후 강제 적용)
+function syncAllPmhxCats(){
+  var rows=document.querySelectorAll('#opj-pmhx-rows .pmhx-row');
+  rows.forEach(function(row,i){
+    var nm=document.getElementById('opj_pmhx_'+i+'_name');
+    var cat=document.getElementById('opj_pmhx_'+i+'_cat');
+    if(!nm||!cat)return;
+    var name=nm.value||'';
+    if(!name.trim())return;
+    // 카테고리가 비어있거나 유효하지 않으면 자동 분류
+    var validCats=['I','E','C','D','F','G','J','K','L','M','N','H','A','Z'];
+    if(!cat.value||validCats.indexOf(cat.value)<0){
+      cat.value=autoKcdCat(name);
+    }
+  });
+  syncAllPmhxHidden();
+}
+
 // 질환명 입력 → KCD 계통 자동 선택
 function autoSetPmhxCat(nameEl){
   if(!nameEl)return;
@@ -1741,6 +1759,8 @@ function loadRecord(idx){
   // pi_pad → pi_pad_sel 연동
   var padSel=document.getElementById('pi_pad_sel');
   if(padSel){padSel.value=(r.pi_pad===1||r.pi_pad===true||r.pi_pad==='1')?'1':'0';}
+  // PMHx 카테고리 강제 재동기화
+  setTimeout(syncAllPmhxCats, 150);
   updateCompletion();calcASMM();
   switchMain('form');
   switchTab(0);
@@ -3246,6 +3266,8 @@ document.addEventListener('DOMContentLoaded',function(){
     }
 
     document.getElementById('json-paste').value='';
+    // PMHx 카테고리 강제 재동기화
+    setTimeout(syncAllPmhxCats, 100);
     showToast(count>0?'✅ '+count+'개 입력 완료! PI 구조화 자동 실행 중...':'값을 찾지 못했어요.');
   });
 
