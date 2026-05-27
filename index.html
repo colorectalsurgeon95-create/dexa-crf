@@ -2946,51 +2946,65 @@ document.addEventListener('DOMContentLoaded',function(){
   // 리포트 버튼 (있을 경우만)
   var copyReportBtn=document.getElementById('copy-report-prompt-btn');
   if(copyReportBtn) copyReportBtn.addEventListener('click',function(){showToast('통합 프롬프트를 사용하세요!');});
+var ajb = document.getElementById('apply-json-btn');
+if(ajb) ajb.addEventListener('click', function(){
+    var raw = document.getElementById('json-paste').value.trim();
+    if(!raw){ showToast('Gemini 답변을 붙여넣어 주세요.'); return; }
 
-  var ajb=document.getElementById('apply-json-btn');if(ajb)ajb.addEventListener('click',function(){
-    var raw=document.getElementById('json-paste').value.trim();
-    if(!raw){showToast('Gemini 답변을 붙여넣어 주세요.');return;}
-    // 이전 환자 잔류 데이터 중 PMHx/수술 행만 초기화 (clearForm 전체 호출 제거)
-    var _pmhxC=document.getElementById('opj-pmhx-rows');if(_pmhxC)_pmhxC.innerHTML='';
-    var _stb=document.getElementById('surgery-tbody');if(_stb)_stb.innerHTML='';
+    // 1. JSON 파싱
+    var parsed = {};
+    try {
+        var jsonText = raw.match(/\{[\s\S]*\}/)[0];
+        parsed = JSON.parse(jsonText);
+    } catch(e) {
+        showToast('❌ JSON 파싱 실패! Gemini에게 JSON만 출력해달라고 하세요.');
+        return;
+    }
 
-    // PART1: JSON 파싱
-    var jsonPart=raw;
-    var p1m=raw.match(/==PART1:\s*JSON==\s*([\s\S]*?)==ENDPART1==/i);
-    if(p1m) jsonPart=p1m[1];
-    var parsed={};
-    var parseErr='';
-    var jsonTruncated=false;
-    try{
-      var clean=jsonPart.replace(/^```(?:json)?\n?/im,'').replace(/```\s*$/m,'').trim();
-      // 완전한 JSON 먼저 시도
-      var jm=clean.match(/\{[\s\S]*\}/);
-      if(jm){
-        var jsonStr=jm[0].replace(/,\s*([}\]])/g,'$1');
-        parsed=JSON.parse(jsonStr);
-      } else {
-        // 잘린 JSON 복구 시도 (Gemini 응답이 중간에 끊긴 경우)
-        var openBrace=clean.indexOf('{');
-        if(openBrace>=0){
-          var partial=clean.slice(openBrace);
-          // 마지막 완전한 키-값 쌍 뒤 쉼표/불완전 부분 제거 후 } 추가
-          var recovered=partial
-            .replace(/,?\s*"[^"]*"\s*:\s*$/, '')   // 마지막 불완전 키 제거
-            .replace(/,?\s*"[^"]*"\s*:\s*[^,}\]]*$/, '') // 마지막 불완전 값 제거
-            .replace(/,\s*$/, '')                     // 끝 쉼표 제거
-            .trim();
-          if(!recovered.endsWith('}'))recovered+='}';
-          var jsonStr2=recovered.replace(/,\s*([}\]])/g,'$1');
-          try{
-            parsed=JSON.parse(jsonStr2);
-            jsonTruncated=true;
-          }catch(e3){ parseErr='JSON 블록을 찾지 못했어요. (Gemini 응답이 잘렸을 수 있어요)'; }
-        } else { parseErr='JSON 블록을 찾지 못했어요.'; }
-      }
-    }catch(e2){ parseErr='JSON 파싱 오류: '+e2.message; }
-    if(parseErr){ showToast('⚠️ '+parseErr); console.error('JSON parse fail:', parseErr, jsonPart.slice(0,300)); return; }
-    if(Object.keys(parsed).length===0){ showToast('⚠️ 빈 JSON이에요. Gemini 답변을 확인해주세요.'); return; }
-    if(jsonTruncated){ showToast('⚠️ Gemini 응답이 잘렸어요. 일부 필드만 입력됩니다. Gemini에서 "계속해줘"로 나머지를 받아 추가 입력하세요.'); }
+    // 2. 데이터 입력 (변수 r을 사용하지 않아 에러를 방지합니다)
+    var count = 0;
+    
+    // 일반 필드 자동 입력
+    Object.keys(parsed).forEach(function(key) {
+        var el = document.getElementById(key);
+        if(el) {
+            if(el.type === 'checkbox') {
+                el.checked = (parsed[key] == 1 || parsed[key] === '1' || parsed[key] === true);
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+            } else {
+                el.value = parsed[key];
+            }
+            if(typeof mOpj === 'function') mOpj(el);
+            count++;
+        }
+    });
+
+    // 3. [핵심] PI 체크박스 전용 강제 갱신 (리스트를 명시하여 확실하게 체크합니다)
+    var piIds = [
+        'pi_sit_passive', 'pi_sit_postdefec', 'pi_sit_strain', 'pi_sit_nocturnal', 'pi_sit_urge',
+        'pi_sx_gas', 'pi_sx_mucus', 'pi_sx_liquid', 'pi_sx_solid',
+        'pi_lk_leak', 'pi_lk_soiling', 'pi_pad',
+        'pi_ag_dairy', 'pi_ag_fruit', 'pi_ag_food', 'pi_ag_other', 'pi_ag_diarrhea', 
+        'pi_ag_loose', 'pi_ag_cough', 'pi_ag_stress', 'pi_ag_postdefec', 'pi_ag_exercise',
+        'pi_crs_worsening', 'pi_crs_intermittent', 'pi_crs_recent_worse',
+        'pi_tx_none', 'pi_tx_drug', 'pi_tx_bio', 'pi_tx_pfe', 'pi_tx_op', 'pi_tx_electric'
+    ];
+
+    piIds.forEach(function(id) {
+        if(parsed[id] !== undefined) {
+            var el = document.getElementById(id);
+            var isChecked = (parsed[id] == 1 || parsed[id] === '1' || parsed[id] === true);
+            if(el) {
+                el.checked = isChecked;
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+    });
+
+    if(typeof updateCompletion === 'function') updateCompletion();
+    showToast('✅ ' + count + '개 필드 및 PI 체크박스 자동 입력 완료!');
+});
+ 
 
     // ── 텍스트값 → 숫자코드 자동 변환 ──
     var convMap={
