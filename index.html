@@ -1696,6 +1696,7 @@ function clearForm(){
   try{setDexaDone(null);}catch(e){}
   var stb=document.getElementById('surgery-tbody');if(stb)stb.innerHTML='';
   var shid=document.getElementById('opj_surgery_json');if(shid)shid.value='';
+  var pmhxC2=document.getElementById('opj-pmhx-rows');if(pmhxC2)pmhxC2.innerHTML='';
   var sdw=document.getElementById('smoking-detail-wrap');if(sdw)sdw.style.display='none';
   try{updateCompletion();}catch(e){}
 }
@@ -3276,6 +3277,8 @@ document.addEventListener('DOMContentLoaded',function(){
         });
       }
     }
+    // PMHx 컨테이너 초기화 (이전 환자 잔류 방지) — legacyMap 전에 반드시 실행
+    (function(){var pc=document.getElementById('opj-pmhx-rows');if(pc)pc.innerHTML='';})();
     // 기존 저장된 opj_htn/hl/cardiac/hematologic 값 → Other PMHx 행으로 복원
     var legacyMap=[
       {id:'opj_htn',cat:'I',name:'고혈압(HTN)',yrId:'opj_htn_yr'},
@@ -3309,8 +3312,6 @@ document.addEventListener('DOMContentLoaded',function(){
     });
 
     // opj_pmhx 텍스트로 왔을 때 → 쉼표/세미콜론으로 분리해서 각각 행으로 추가
-    // PMHx 컨테이너 항상 초기화 후 재구성
-    (function(){var pc=document.getElementById('opj-pmhx-rows');if(pc)pc.innerHTML='';})();
     if(!parsed.opj_pmhx_list&&parsed.opj_pmhx&&typeof parsed.opj_pmhx==='string'&&parsed.opj_pmhx.trim()){
       var pmhxContainer=document.getElementById('opj-pmhx-rows');
       if(pmhxContainer){
