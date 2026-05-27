@@ -3317,7 +3317,7 @@ document.addEventListener('DOMContentLoaded',function(){
       if(pmhxContainer){
         pmhxContainer.innerHTML='';
         // 쉼표/세미콜론으로 분리
-        var pmhxItems=String(parsed.opj_pmhx).split(/[,;，]/).map(function(s){return s.trim();}).filter(Boolean);
+        var pmhxItems=String(parsed.opj_pmhx).split(/[,;，]/).map(function(s){return s.trim();}).filter(function(s){return s&&s!=="-"&&s.length>1;});
         // 이미 별도 필드로 처리되는 항목 제외 (중복 방지)
         var excludeKeywords=['htn','고혈압','hl','이상지질혈증','고지혈증','dm','당뇨','diabetes',
           'ui','요실금','폐경','menopause','심혈관','심장','cvd','cardiac',
