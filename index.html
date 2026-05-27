@@ -3449,22 +3449,27 @@ document.addEventListener('DOMContentLoaded',function(){
 
     // ── PI 체크박스 자동 처리 ──
     var OPJ_CHK=window.OPJ_CHECKS||[];
-    // 1) 적용할 체크 상태를 로컬에 저장
-    var piCheckData={};
+    // renderPiCodingBox 호출 없이 직접 설정 (DOM 재생성 없음)
     OPJ_CHK.forEach(function(id){
       if(parsed[id]!==undefined){
         var val=(parsed[id]===1||parsed[id]==='1'||parsed[id]===true);
-        piCheckData[id]=val;
+        var el=document.getElementById(id);
+        if(el&&el.type==='checkbox')el.checked=val;
         if(val)count++;
       }
     });
-    // 2) PI 박스 재렌더 (DOM 초기화)
-    if(typeof renderPiCodingBox==='function')renderPiCodingBox();
-    // 3) 재렌더 후 직접 설정 — 이 순서여야 확실히 반영됨
-    Object.keys(piCheckData).forEach(function(id){
-      var el=document.getElementById(id);
-      if(el&&el.tagName==='INPUT')el.checked=piCheckData[id];
-    });
+    // 100ms 후 한 번 더 보장 (렌더링 지연 대비)
+    (function(snap){
+      setTimeout(function(){
+        Object.keys(snap).forEach(function(id){
+          var el=document.getElementById(id);
+          if(el&&el.type==='checkbox')el.checked=snap[id];
+        });
+      },100);
+    })(OPJ_CHK.reduce(function(acc,id){
+      if(parsed[id]!==undefined)acc[id]=(parsed[id]===1||parsed[id]==='1'||parsed[id]===true);
+      return acc;
+    },{}));
     if(parsed.pi_tx_other){var pto=document.getElementById('pi_tx_other');if(pto)pto.value=parsed.pi_tx_other;}
 
     // ── PI 체크박스 원문 추론 (Gemini가 누락했을 때 보완) ──
