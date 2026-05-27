@@ -1138,18 +1138,11 @@ function renderPiCodingBox(){
   });
 
   box.innerHTML = html;
-  // 체크 상태 복원 — __pendingPiChecks 우선, 없으면 기존 checked 사용
-  var pending = window.__pendingPiChecks || {};
+  // 체크 상태 복원
   items.forEach(function(item){
     var el = document.getElementById(item.id);
-    if(!el) return;
-    if(item.id in pending){
-      el.checked = pending[item.id];
-    } else if(checked[item.id]){
-      el.checked = true;
-    }
+    if(el && checked[item.id]) el.checked = true;
   });
-  window.__pendingPiChecks = null; // 사용 후 초기화
   syncOPJ_CHECKS();
 }
 
@@ -3456,23 +3449,21 @@ document.addEventListener('DOMContentLoaded',function(){
 
     // ── PI 체크박스 자동 처리 ──
     var OPJ_CHK=window.OPJ_CHECKS||[];
-    // parsed 데이터를 전역에 저장 → renderPiCodingBox가 참조해서 복원
-    window.__pendingPiChecks={};
+    // 1) 적용할 체크 상태를 로컬에 저장
+    var piCheckData={};
     OPJ_CHK.forEach(function(id){
       if(parsed[id]!==undefined){
         var val=(parsed[id]===1||parsed[id]==='1'||parsed[id]===true);
-        window.__pendingPiChecks[id]=val;
+        piCheckData[id]=val;
         if(val)count++;
       }
     });
-    // renderPiCodingBox로 재렌더 → 내부에서 __pendingPiChecks 우선 적용
+    // 2) PI 박스 재렌더 (DOM 초기화)
     if(typeof renderPiCodingBox==='function')renderPiCodingBox();
-    // 한번 더 직접 설정 (안전장치)
-    OPJ_CHK.forEach(function(id){
-      if(window.__pendingPiChecks[id]!==undefined){
-        var el=document.getElementById(id);
-        if(el&&el.tagName==='INPUT')el.checked=window.__pendingPiChecks[id];
-      }
+    // 3) 재렌더 후 직접 설정 — 이 순서여야 확실히 반영됨
+    Object.keys(piCheckData).forEach(function(id){
+      var el=document.getElementById(id);
+      if(el&&el.tagName==='INPUT')el.checked=piCheckData[id];
     });
     if(parsed.pi_tx_other){var pto=document.getElementById('pi_tx_other');if(pto)pto.value=parsed.pi_tx_other;}
 
