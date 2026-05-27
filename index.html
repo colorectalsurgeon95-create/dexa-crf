@@ -1138,11 +1138,18 @@ function renderPiCodingBox(){
   });
 
   box.innerHTML = html;
-  // 체크 상태 복원
+  // 체크 상태 복원 — __pendingPiChecks 우선, 없으면 기존 checked 사용
+  var pending = window.__pendingPiChecks || {};
   items.forEach(function(item){
     var el = document.getElementById(item.id);
-    if(el && checked[item.id]) el.checked = true;
+    if(!el) return;
+    if(item.id in pending){
+      el.checked = pending[item.id];
+    } else if(checked[item.id]){
+      el.checked = true;
+    }
   });
+  window.__pendingPiChecks = null; // 사용 후 초기화
   syncOPJ_CHECKS();
 }
 
@@ -3449,27 +3456,24 @@ document.addEventListener('DOMContentLoaded',function(){
 
     // ── PI 체크박스 자동 처리 ──
     var OPJ_CHK=window.OPJ_CHECKS||[];
-    // renderPiCodingBox가 먼저 실행되어 있는지 확인, 없으면 재렌더
-    if(document.getElementById('pi-coding-box')&&
-       !document.getElementById('pi_sit_passive')){
-      if(typeof renderPiCodingBox==='function')renderPiCodingBox();
-    }
+    // parsed 데이터를 전역에 저장 → renderPiCodingBox가 참조해서 복원
+    window.__pendingPiChecks={};
     OPJ_CHK.forEach(function(id){
       if(parsed[id]!==undefined){
-        var el=document.getElementById(id);
-        if(el){
-          // input type checkbox 또는 체크박스 역할 요소
-          if(el.tagName==='INPUT'){
-            el.checked=(parsed[id]===1||parsed[id]==='1'||parsed[id]===true);
-          } else {
-            el.setAttribute('data-checked', parsed[id]===1?'1':'0');
-          }
-          if(parsed[id]===1||parsed[id]==='1')count++;
-        }
+        var val=(parsed[id]===1||parsed[id]==='1'||parsed[id]===true);
+        window.__pendingPiChecks[id]=val;
+        if(val)count++;
       }
     });
-    // PI 체크박스 상태 반영을 위해 재렌더 (상태 보존됨)
+    // renderPiCodingBox로 재렌더 → 내부에서 __pendingPiChecks 우선 적용
     if(typeof renderPiCodingBox==='function')renderPiCodingBox();
+    // 한번 더 직접 설정 (안전장치)
+    OPJ_CHK.forEach(function(id){
+      if(window.__pendingPiChecks[id]!==undefined){
+        var el=document.getElementById(id);
+        if(el&&el.tagName==='INPUT')el.checked=window.__pendingPiChecks[id];
+      }
+    });
     if(parsed.pi_tx_other){var pto=document.getElementById('pi_tx_other');if(pto)pto.value=parsed.pi_tx_other;}
 
     // ── PI 체크박스 원문 추론 (Gemini가 누락했을 때 보완) ──
