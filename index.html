@@ -3463,8 +3463,8 @@ document.addEventListener('DOMContentLoaded',function(){
     var piRaw=(parsed.opj_raw_text||parsed.opj_pi_text||'').toLowerCase();
     var piTrigger=(parsed.opj_trigger||'').toLowerCase();
     var piAll=piRaw+' '+piTrigger;
-    var anyPiChecked=OPJ_CHK.some(function(id){var e=document.getElementById(id);return e&&e.checked;});
-    if(!anyPiChecked&&piAll.trim()){
+    // 추론은 항상 실행 — Gemini가 놓친 항목 보완 (이미 1인 것은 건드리지 않음)
+    if(piAll.trim()){
       var inferMap={
         'pi_sit_passive': ['나도 모르게','모르게','수동','passive','느끼지 못','감각 없','감각없'],
         'pi_sit_postdefec': ['변 본 후','변보고','배변 후','잔변','post defec','after defec'],
